@@ -15,12 +15,17 @@
     <dependencies>
         <dependency>
             <groupId>dev.kkoncki.bandup</groupId>
-            <artifactId>domain</artifactId>
+            <artifactId>auth-domain</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>dev.kkoncki.bandup</groupId>
             <artifactId>infrastructure</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.kkoncki.bandup</groupId>
+            <artifactId>security</artifactId>
             <version>${revision}</version>
         </dependency>
     </dependencies>

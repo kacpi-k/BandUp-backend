@@ -12,4 +12,7 @@
     <artifactId>configuration</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
+    <modules>
+        <module>security</module>
+    </modules>
 </project>
