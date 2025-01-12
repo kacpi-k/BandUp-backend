@@ -6,7 +6,7 @@
     <parent>
         <groupId>dev.kkoncki.bandup</groupId>
         <artifactId>modules</artifactId>
-        <version>1.0.1</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>interaction-management-module</artifactId>
