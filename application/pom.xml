@@ -10,4 +10,21 @@
     </parent>
     <artifactId>application</artifactId>
     <version>${revision}</version>
+    <dependencies>
+        <dependency>
+            <groupId>dev.kkoncki.bandup</groupId>
+            <artifactId>auth-domain</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.kkoncki.bandup</groupId>
+            <artifactId>auth-infrastructure</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.kkoncki.bandup</groupId>
+            <artifactId>auth-rest</artifactId>
+            <version>${revision}</version>
+        </dependency>
+    </dependencies>
 </project>

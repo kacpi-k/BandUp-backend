@@ -27,6 +27,9 @@
 		<java.version>17</java.version>
 		<liquibase.core.version>4.18.0</liquibase.core.version>
 		<lombok.version>1.18.28</lombok.version>
+		<spring-boot-starter-security.version>3.2.4</spring-boot-starter-security.version>
+		<jjwt.version>0.9.1</jjwt.version>
+		<jaxb-api.version>2.3.0</jaxb-api.version>
 	</properties>
 
 	<dependencies>
