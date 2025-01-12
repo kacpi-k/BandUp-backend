@@ -12,4 +12,9 @@
     <artifactId>band-module</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
+    <modules>
+        <module>band-domain</module>
+        <module>band-infrastructure</module>
+        <module>band-rest</module>
+    </modules>
 </project>

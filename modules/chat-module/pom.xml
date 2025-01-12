@@ -12,4 +12,9 @@
     <artifactId>chat-module</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
+    <modules>
+        <module>chat-domain</module>
+        <module>chat-infrastructure</module>
+        <module>chat-rest</module>
+    </modules>
 </project>

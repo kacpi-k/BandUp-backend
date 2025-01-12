@@ -12,4 +12,9 @@
     <artifactId>user-management-module</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
+    <modules>
+        <module>user-management-domain</module>
+        <module>user-management-infrastructure</module>
+        <module>user-management-rest</module>
+    </modules>
 </project>

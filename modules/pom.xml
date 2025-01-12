@@ -18,5 +18,6 @@
         <module>chat-module</module>
         <module>file-management-module</module>
         <module>interaction-management-module</module>
+        <module>auth-module</module>
     </modules>
 </project>
