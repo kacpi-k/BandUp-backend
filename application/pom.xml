@@ -26,5 +26,20 @@
             <artifactId>auth-rest</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>dev.kkoncki.bandup</groupId>
+            <artifactId>user-management-domain</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.kkoncki.bandup</groupId>
+            <artifactId>user-management-infrastructure</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.kkoncki.bandup</groupId>
+            <artifactId>user-management-rest</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 </project>
