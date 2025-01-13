@@ -2,11 +2,11 @@ package dev.kkoncki.bandup.user.management.genre.forms;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
-@Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateGenreForm {
