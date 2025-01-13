@@ -1,8 +1,24 @@
 spring:
   config:
     import: file:.env[.properties]
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/band_up_db
+    username: admin
+    password: admin
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/db.changelog-master.yaml
   security:
     jwt:
-        secret: ${JWT_SECRET}
-        tokenExpirationTimeInMinutes: 10000
-        securityFilterPath: /api/auth/**
+      secret: ${JWT_SECRET}
+      tokenExpirationTimeInMinutes: 10000
+      securityFilterPath: /api/auth/**
