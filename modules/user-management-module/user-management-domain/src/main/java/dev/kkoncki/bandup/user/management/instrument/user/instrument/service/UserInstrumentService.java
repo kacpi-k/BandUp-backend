@@ -12,6 +12,6 @@ import java.util.List;
 public interface UserInstrumentService {
     UserInstrument save(@Valid CreateUserInstrumentForm form, String userId);
     void update(@Valid UpdateUserInstrumentForm form);
-    UserInstrument get(String userInstrumentId);
+    UserInstrument get(String id);
     List<UserInstrument> getAllByUserId(String userId);
 }

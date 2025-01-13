@@ -9,6 +9,7 @@ import dev.kkoncki.bandup.user.management.instrument.user.instrument.repository.
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserInstrumentServiceImpl implements UserInstrumentService {
@@ -26,6 +27,7 @@ public class UserInstrumentServiceImpl implements UserInstrumentService {
     @Override
     public UserInstrument save(CreateUserInstrumentForm form, String userId) {
         UserInstrument userInstrument = UserInstrument.builder()
+                .id(UUID.randomUUID().toString())
                 .userId(userId)
                 .instrumentId(form.getInstrumentId())
                 .skillLevel(form.getSkillLevel())
@@ -42,8 +44,8 @@ public class UserInstrumentServiceImpl implements UserInstrumentService {
     }
 
     @Override
-    public UserInstrument get(String userInstrumentId) {
-        return getOrThrowUserInstrument(userInstrumentId);
+    public UserInstrument get(String id) {
+        return getOrThrowUserInstrument(id);
     }
 
     @Override

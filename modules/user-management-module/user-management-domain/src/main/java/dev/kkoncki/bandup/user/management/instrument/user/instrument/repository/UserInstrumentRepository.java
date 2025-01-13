@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserInstrumentRepository {
-    Optional<UserInstrument> get(String userInstrumentId);
+    Optional<UserInstrument> get(String id);
     UserInstrument save(UserInstrument userInstrument);
     List<UserInstrument> findAllByUserId(String userId);
 }
