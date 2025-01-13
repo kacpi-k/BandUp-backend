@@ -18,7 +18,7 @@ public class UserInstrumentRepositoryAdapter implements UserInstrumentRepository
     }
 
     @Override
-    public Optional<UserInstrument> get(String id) {
+    public Optional<UserInstrument> findById(String id) {
         return jpaUserInstrumentRepository.findById(id).map(UserInstrumentMapper::toDomain);
     }
 

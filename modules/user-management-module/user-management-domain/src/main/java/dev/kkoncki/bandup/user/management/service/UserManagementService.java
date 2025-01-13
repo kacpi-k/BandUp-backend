@@ -10,7 +10,7 @@ public interface UserManagementService {
     User get(String id);
     User save(@Valid CreateUserForm form);
     User block(String id);
-    User unblock(String id);
+    User unBlock(String id);
     void addOrRemoveInstrument(String userInstrumentId, String userId);
     void addOrRemoveGenre(String genreId, String userId);
 

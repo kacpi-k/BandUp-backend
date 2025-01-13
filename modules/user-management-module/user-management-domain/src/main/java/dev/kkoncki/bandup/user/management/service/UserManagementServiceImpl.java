@@ -55,7 +55,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     }
 
     @Override
-    public User unblock(String id) {
+    public User unBlock(String id) {
         User user = getOrThrowUser(id);
         user.setBlocked(false);
         return userManagementRepository.save(user);

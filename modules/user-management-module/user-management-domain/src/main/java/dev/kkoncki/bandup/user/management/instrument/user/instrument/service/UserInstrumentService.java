@@ -14,4 +14,5 @@ public interface UserInstrumentService {
     void update(@Valid UpdateUserInstrumentForm form);
     UserInstrument get(String id);
     List<UserInstrument> getAllByUserId(String userId);
+    //TODO add delete method
 }
