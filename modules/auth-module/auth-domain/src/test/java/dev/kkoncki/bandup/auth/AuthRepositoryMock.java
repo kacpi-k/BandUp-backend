@@ -16,12 +16,7 @@ public class AuthRepositoryMock implements AuthRepository {
 
     @Override
     public Optional<AuthUser> findById(String id) {
-        for (AuthUser user : mockDB.values()) {
-            if (user.getId().equals(id)) {
-                return Optional.of(user);
-            }
-        }
-        return Optional.empty();
+        return Optional.ofNullable(mockDB.get(id));
     }
 
     @Override

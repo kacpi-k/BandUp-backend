@@ -21,7 +21,7 @@ public class UserInstrumentServiceImpl implements UserInstrumentService {
     }
 
     private UserInstrument getOrThrowUserInstrument(String id) {
-        return userInstrumentRepository.get(id).orElseThrow(() -> new ApplicationException(ErrorCode.USER_INSTRUMENT_NOT_FOUND));
+        return userInstrumentRepository.findById(id).orElseThrow(() -> new ApplicationException(ErrorCode.USER_INSTRUMENT_NOT_FOUND));
     }
 
     @Override
