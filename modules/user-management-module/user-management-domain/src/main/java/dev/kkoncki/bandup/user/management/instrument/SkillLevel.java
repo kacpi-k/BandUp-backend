@@ -1,4 +1,4 @@
-package dev.kkoncki.bandup.user.management;
+package dev.kkoncki.bandup.user.management.instrument;
 
 public enum SkillLevel {
     BEGINNER,

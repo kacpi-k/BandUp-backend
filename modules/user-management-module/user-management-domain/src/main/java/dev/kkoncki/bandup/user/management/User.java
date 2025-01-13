@@ -1,7 +1,5 @@
 package dev.kkoncki.bandup.user.management;
 
-import dev.kkoncki.bandup.user.management.genre.Genre;
-import dev.kkoncki.bandup.user.management.instrument.Instrument;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,8 +19,7 @@ public class User {
     private String email;
     private Instant createdOn;
     private boolean isBlocked;
-    private Instrument instrument;
-    private SkillLevel skillLevel;
+    private List<String> instruments;
     private String bio;
-    private List<Genre> genres;
+    private List<String> genres;
 }

@@ -4,6 +4,10 @@ import dev.kkoncki.bandup.user.management.genre.Genre;
 import dev.kkoncki.bandup.user.management.genre.forms.CreateGenreForm;
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 public interface GenreService {
+    Genre get(String genreId);
     Genre save(@Valid CreateGenreForm form);
+    List<Genre> getAll();
 }
