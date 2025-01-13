@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "instrument_categories", schema = "public")
+@Table(name = "instrument_category", schema = "public")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

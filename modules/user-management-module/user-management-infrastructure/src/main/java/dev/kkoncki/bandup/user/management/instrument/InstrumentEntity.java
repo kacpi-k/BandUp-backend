@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "instruments", schema = "public")
+@Table(name = "instrument", schema = "public")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
