@@ -26,6 +26,7 @@ public class UserInstrumentServiceImpl implements UserInstrumentService {
 
     @Override
     public UserInstrument save(CreateUserInstrumentForm form, String userId) {
+        //TODO add check if UserInstrument with given instrumentId and userId already exists
         UserInstrument userInstrument = UserInstrument.builder()
                 .id(UUID.randomUUID().toString())
                 .userId(userId)

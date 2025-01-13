@@ -8,6 +8,7 @@ import dev.kkoncki.bandup.user.management.genre.repository.GenreRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class GenreServiceImpl implements GenreService {
@@ -24,13 +25,14 @@ public class GenreServiceImpl implements GenreService {
     }
 
     @Override
-    public Genre get(String genreId) {
-        return getByIdOrThrowGenre(genreId);
+    public Genre get(String id) {
+        return getByIdOrThrowGenre(id);
     }
 
     @Override
     public Genre save(CreateGenreForm form) {
         Genre genre = Genre.builder()
+                .id(UUID.randomUUID().toString())
                 .name(form.getName())
                 .build();
         return genreRepository.save(genre);

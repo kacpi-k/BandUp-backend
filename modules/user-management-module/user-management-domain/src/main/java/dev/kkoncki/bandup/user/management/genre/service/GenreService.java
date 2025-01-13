@@ -7,7 +7,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 public interface GenreService {
-    Genre get(String genreId);
+    Genre get(String id);
     Genre save(@Valid CreateGenreForm form);
     List<Genre> getAll();
 }

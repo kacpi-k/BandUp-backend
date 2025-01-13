@@ -9,7 +9,7 @@ import java.util.List;
 
 @Validated
 public interface InstrumentService {
-    Instrument get(String instrumentId);
+    Instrument get(String id);
     Instrument save(@Valid CreateInstrumentForm form);
     List<Instrument> getAll();
     List<Instrument> getAllByCategoryId(String categoryId);

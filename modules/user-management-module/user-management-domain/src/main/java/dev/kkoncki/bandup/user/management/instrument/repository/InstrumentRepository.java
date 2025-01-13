@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface InstrumentRepository {
-    Optional<Instrument> findById(String instrumentId);
+    Optional<Instrument> findById(String id);
     Instrument save(Instrument instrument);
     List<Instrument> findAll();
     List<Instrument> findAllByCategoryId(String categoryId);

@@ -8,6 +8,7 @@ import dev.kkoncki.bandup.user.management.instrument.category.repository.Instrum
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class InstrumentCategoryServiceImpl implements InstrumentCategoryService {
@@ -24,13 +25,14 @@ public class InstrumentCategoryServiceImpl implements InstrumentCategoryService 
     }
 
     @Override
-    public InstrumentCategory get(String InstrumentCategoryId) {
-        return getByIdOrThrowInstrumentCategory(InstrumentCategoryId);
+    public InstrumentCategory get(String id) {
+        return getByIdOrThrowInstrumentCategory(id);
     }
 
     @Override
     public InstrumentCategory save(CreateInstrumentCategoryForm form) {
         InstrumentCategory instrumentCategory = InstrumentCategory.builder()
+                .id(UUID.randomUUID().toString())
                 .name(form.getName())
                 .build();
         return instrumentCategoryRepository.save(instrumentCategory);

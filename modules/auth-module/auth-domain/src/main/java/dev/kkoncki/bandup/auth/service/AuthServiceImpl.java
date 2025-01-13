@@ -10,6 +10,8 @@ import dev.kkoncki.bandup.auth.security.PasswordEncoder;
 import dev.kkoncki.bandup.auth.security.TokenProvider;
 import dev.kkoncki.bandup.commons.ApplicationException;
 import dev.kkoncki.bandup.commons.ErrorCode;
+import dev.kkoncki.bandup.user.management.User;
+import dev.kkoncki.bandup.user.management.service.UserManagementService;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -39,7 +41,7 @@ public class AuthServiceImpl implements AuthService{
     @Override
     public LoginResponse login(LoginForm form) {
         AuthUser user = getByEmailOrThrowAuthUser(form.getEmail());
-        User userDetails = userManagementService.getUserById(user.getId());
+        User userDetails = userManagementService.get(user.getId());
 
         if(userDetails.isBlocked()) {
             throw new ApplicationException(ErrorCode.USER_BLOCKED);

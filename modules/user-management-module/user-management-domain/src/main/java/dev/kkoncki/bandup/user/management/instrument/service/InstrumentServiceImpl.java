@@ -8,6 +8,7 @@ import dev.kkoncki.bandup.user.management.instrument.repository.InstrumentReposi
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class InstrumentServiceImpl implements InstrumentService {
@@ -24,13 +25,14 @@ public class InstrumentServiceImpl implements InstrumentService {
     }
 
     @Override
-    public Instrument get(String instrumentId) {
-        return getByIdOrThrowInstrument(instrumentId);
+    public Instrument get(String id) {
+        return getByIdOrThrowInstrument(id);
     }
 
     @Override
     public Instrument save(CreateInstrumentForm form) {
         Instrument instrument = Instrument.builder()
+                .id(UUID.randomUUID().toString())
                 .name(form.getName())
                 .categoryId(form.getCategoryId())
                 .build();
