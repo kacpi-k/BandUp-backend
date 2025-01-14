@@ -69,6 +69,8 @@ public class UserManagementServiceImpl implements UserManagementService {
         } else {
             user.getInstruments().add(userInstrumentId);
         }
+
+        // TODO remove in db
     }
 
     @Override
