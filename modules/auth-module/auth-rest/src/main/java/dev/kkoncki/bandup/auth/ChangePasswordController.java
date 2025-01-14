@@ -3,6 +3,7 @@ package dev.kkoncki.bandup.auth;
 import dev.kkoncki.bandup.auth.forms.ChangePasswordForm;
 import dev.kkoncki.bandup.auth.service.AuthService;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,7 +18,7 @@ public class ChangePasswordController {
     }
 
     @PutMapping("/change-password")
-    public void changePassword(ChangePasswordForm form) {
+    public void changePassword(@RequestBody ChangePasswordForm form) {
         authService.changePassword(form);
     }
 }

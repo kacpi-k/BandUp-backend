@@ -5,6 +5,7 @@ import dev.kkoncki.bandup.auth.forms.LoginForm;
 import dev.kkoncki.bandup.auth.service.AuthService;
 import dev.kkoncki.bandup.commons.LoggedUser;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,12 +22,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public LoginResponse login(LoginForm form) {
+    public LoginResponse login(@RequestBody LoginForm form) {
         return authService.login(form);
     }
 
     @PostMapping("/register")
-    public void createUserWithPassword(CreateUserWithPasswordForm form) {
+    public void createUserWithPassword(@RequestBody CreateUserWithPasswordForm form) {
         authService.createUserWithPassword(form);
     }
 
