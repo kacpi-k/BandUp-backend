@@ -1,6 +1,6 @@
 package dev.kkoncki.bandup.user.management;
 
-import dev.kkoncki.bandup.user.management.genre.GenreEntity;
+import dev.kkoncki.bandup.commons.genre.GenreEntity;
 import dev.kkoncki.bandup.user.management.instrument.user.instrument.UserInstrumentEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

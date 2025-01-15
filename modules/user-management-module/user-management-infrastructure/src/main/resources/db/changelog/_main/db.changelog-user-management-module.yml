@@ -1,7 +1,5 @@
 databaseChangeLog:
   - include:
-      file: classpath:db/changelog/user-management/create-genre-table.xml
-  - include:
       file: classpath:db/changelog/user-management/create-instrument-category-table.xml
   - include:
       file: classpath:db/changelog/user-management/create-instrument-table.xml

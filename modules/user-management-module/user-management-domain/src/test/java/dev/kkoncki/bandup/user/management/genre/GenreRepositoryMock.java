@@ -1,6 +1,7 @@
 package dev.kkoncki.bandup.user.management.genre;
 
-import dev.kkoncki.bandup.user.management.genre.repository.GenreRepository;
+import dev.kkoncki.bandup.commons.genre.Genre;
+import dev.kkoncki.bandup.commons.genre.repository.GenreRepository;
 
 import java.util.*;
 

@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: classpath:db/changelog/band/create-band-table.xml
+  - include:
+      file: classpath:db/changelog/band/create-band-member-table.xml
+  - include:
+      file: classpath:db/changelog/band/create-band-genres-table.xml

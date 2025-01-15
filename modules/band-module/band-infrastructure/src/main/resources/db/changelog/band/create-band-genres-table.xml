@@ -1,0 +1,30 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="create-band-genres-table" author="Kacper Koncki">
+        <createTable tableName="band_genres" schemaName="public">
+            <column name="band_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="genre_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="band_genres"
+                baseColumnNames="band_id"
+                constraintName="fk_band_genres_band"
+                referencedTableName="band"
+                referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+                baseTableName="band_genres"
+                baseColumnNames="genre_id"
+                constraintName="fk_band_genres_genre"
+                referencedTableName="genre"
+                referencedColumnNames="id"/>
+    </changeSet>
+</databaseChangeLog>
