@@ -1,9 +1,10 @@
 package dev.kkoncki.bandup.user.management.genre;
 
-import dev.kkoncki.bandup.user.management.genre.forms.CreateGenreForm;
-import dev.kkoncki.bandup.user.management.genre.repository.GenreRepository;
-import dev.kkoncki.bandup.user.management.genre.service.GenreService;
-import dev.kkoncki.bandup.user.management.genre.service.GenreServiceImpl;
+import dev.kkoncki.bandup.commons.genre.Genre;
+import dev.kkoncki.bandup.commons.genre.forms.CreateGenreForm;
+import dev.kkoncki.bandup.commons.genre.repository.GenreRepository;
+import dev.kkoncki.bandup.commons.genre.service.GenreService;
+import dev.kkoncki.bandup.commons.genre.service.GenreServiceImpl;
 import jakarta.validation.*;
 import org.junit.jupiter.api.Test;
 

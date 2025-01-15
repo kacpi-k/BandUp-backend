@@ -30,6 +30,7 @@
 		<spring-boot-starter-security.version>3.2.4</spring-boot-starter-security.version>
 		<jjwt.version>0.9.1</jjwt.version>
 		<jaxb-api.version>2.3.0</jaxb-api.version>
+		<mockito.version>5.5.0</mockito.version>
 	</properties>
 
 	<dependencies>

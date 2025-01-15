@@ -41,5 +41,20 @@
             <artifactId>user-management-rest</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>dev.kkoncki.bandup</groupId>
+            <artifactId>band-domain</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.kkoncki.bandup</groupId>
+            <artifactId>band-infrastructure</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.kkoncki.bandup</groupId>
+            <artifactId>band-rest</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 </project>
