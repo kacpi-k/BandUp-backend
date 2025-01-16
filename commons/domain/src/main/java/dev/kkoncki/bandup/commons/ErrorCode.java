@@ -13,7 +13,13 @@ public enum ErrorCode {
     USER_INSTRUMENT_NOT_FOUND("User instrument not found"),
     BAND_MEMBER_NOT_FOUND("Band member not found"),
     BAND_NOT_FOUND("Band not found"),
-    NOT_A_LEADER("User is not a leader of the band"),;
+    NOT_A_LEADER("User is not a leader of the band"),
+    FAILED_TO_UPLOAD_FILE("Failed to upload file"),
+    FILE_NOT_FOUND("File not found"),
+    FAILED_TO_DOWNLOAD_FILE("Failed to download file"),
+    FAILED_TO_DELETE_FILE("Failed to delete file"),
+    FAILED_TO_GENERATE_FILE_URL("Failed to generate file URL"),
+    TEST("Test");
 
     ErrorCode(String message) {
         this.message = message;

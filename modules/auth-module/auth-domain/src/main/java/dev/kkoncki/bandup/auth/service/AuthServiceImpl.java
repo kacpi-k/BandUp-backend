@@ -47,11 +47,12 @@ public class AuthServiceImpl implements AuthService{
             throw new ApplicationException(ErrorCode.USER_BLOCKED);
         }
 
-        if(passwordEncoder.matches(form.getPassword(), user.getPassword())) {
-            String token = tokenProvider.generateToken(user.getId());
-            return new LoginResponse(token);
+        if(!passwordEncoder.matches(form.getPassword(), user.getPassword())) {
+            throw new ApplicationException(ErrorCode.INVALID_CREDENTIALS);
         }
-        throw new ApplicationException(ErrorCode.INVALID_CREDENTIALS);
+
+        String token = tokenProvider.generateToken(user.getId());
+        return new LoginResponse(token);
     }
 
     @Override
