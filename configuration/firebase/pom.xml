@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>dev.kkoncki.bandup</groupId>
-        <artifactId>file-management-module</artifactId>
+        <artifactId>configuration</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>file-management-domain</artifactId>
+    <artifactId>firebase</artifactId>
     <version>${revision}</version>
 
     <dependencies>
@@ -19,9 +19,10 @@
             <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>dev.kkoncki.bandup</groupId>
-            <artifactId>firebase</artifactId>
-            <version>${revision}</version>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>${firebase-admin-version}</version>
         </dependency>
     </dependencies>
+
 </project>

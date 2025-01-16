@@ -22,3 +22,7 @@ spring:
       secret: ${JWT_SECRET}
       tokenExpirationTimeInMinutes: 10000
       securityFilterPath: /api/auth/**
+
+app:
+  firebase:
+    bucket: ${FIREBASE_CLOUD_STORAGE_BUCKET}

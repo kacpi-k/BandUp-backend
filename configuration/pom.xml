@@ -14,5 +14,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>security</module>
+        <module>firebase</module>
     </modules>
 </project>
