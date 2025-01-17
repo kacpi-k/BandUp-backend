@@ -1,35 +1,38 @@
-package dev.kkoncki.bandup.file.management;
+package dev.kkoncki.bandup.file.management.service;
 
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import dev.kkoncki.bandup.commons.ApplicationException;
 import dev.kkoncki.bandup.commons.ErrorCode;
+import dev.kkoncki.bandup.file.management.File;
 import dev.kkoncki.bandup.firebase.FirebaseProps;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.UUID;
 
-@Slf4j
 @Service
 public class FirebaseFileStorageService implements FileStorageService {
 
     private final Storage storage;
     private final FirebaseProps firebaseProps;
+    private final FileManagementService fileManagementService;
 
-    public FirebaseFileStorageService(Storage storage, FirebaseProps firebaseProps) {
+    public FirebaseFileStorageService(Storage storage, FirebaseProps firebaseProps, FileManagementService fileManagementService) {
         this.storage = storage;
         this.firebaseProps = firebaseProps;
+        this.fileManagementService = fileManagementService;
     }
 
-    private String generateUniqueFileName(String userId, String originalFileName) {
+    private String generateUniqueFileName(String originalFileName, String fileId) {
         String extension = getFileExtension(originalFileName);
-        String uniqueId = UUID.randomUUID().toString();
 
-        return uniqueId + (extension.isEmpty() ? "" : "." + extension);
+        return fileId + (extension.isEmpty() ? "" : "." + extension);
+    }
+
+    private String generateFileUUID() {
+        return UUID.randomUUID().toString();
     }
 
     private String getFileExtension(String fileName) {
@@ -37,33 +40,48 @@ public class FirebaseFileStorageService implements FileStorageService {
         if (lastDodIndex > 0 && lastDodIndex < fileName.length() - 1) {
             return fileName.substring(lastDodIndex + 1);
         }
-        return "";
+        return fileName;
+    }
+
+    private String removeFileExtension(String fileName) {
+        int lastDotIndex = fileName.lastIndexOf(".");
+        if (lastDotIndex > 0 && lastDotIndex < fileName.length() - 1) {
+            return fileName.substring(0, lastDotIndex);
+        }
+        return fileName;
     }
 
     @Override
     public String uploadFile(byte[] file, String userId, String originalFileName, String contentType) {
         try {
-            String uniqueFileName = generateUniqueFileName(userId, originalFileName);
+            String fileId = generateFileUUID();
 
-            log.info("Uploading file to bucket: {}", firebaseProps.getBucket());
-            log.info("Generated file name: {}", uniqueFileName);
-            log.info("Content type: {}", contentType);
-
-
+            String uniqueFileName = generateUniqueFileName(originalFileName, fileId);
 
             Bucket bucket = storage.get(firebaseProps.getBucket());
             if (bucket == null) {
-                log.info("Bucket problem");
-                throw new ApplicationException(ErrorCode.TEST);
+                throw new ApplicationException(ErrorCode.BUCKET_NOT_FOUND);
             }
-            log.info("Bucket: {}", bucket);
+
             Blob blob = bucket.create(uniqueFileName, file, contentType);
+
+            File fileToDB = File.builder()
+                    .id(fileId)
+                    .userId(userId)
+                    .extension(getFileExtension(originalFileName))
+                    .size(file.length)
+                    .url(blob.getMediaLink())
+                    .uploadedAt(Instant.now())
+                    .build();
+
+            fileManagementService.save(fileToDB);
 
             return blob.getMediaLink();
         } catch (Exception e) {
             throw new ApplicationException(ErrorCode.FAILED_TO_UPLOAD_FILE);
         }
     }
+
 
     @Override
     public byte[] downloadFile(String fileName) {
@@ -92,6 +110,9 @@ public class FirebaseFileStorageService implements FileStorageService {
             }
 
             blob.delete();
+
+            String fileId = removeFileExtension(fileName);
+            fileManagementService.delete(fileId);
         } catch (Exception e) {
             throw new ApplicationException(ErrorCode.FAILED_TO_DELETE_FILE);
         }

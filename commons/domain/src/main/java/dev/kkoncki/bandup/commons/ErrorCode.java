@@ -19,7 +19,7 @@ public enum ErrorCode {
     FAILED_TO_DOWNLOAD_FILE("Failed to download file"),
     FAILED_TO_DELETE_FILE("Failed to delete file"),
     FAILED_TO_GENERATE_FILE_URL("Failed to generate file URL"),
-    TEST("Test");
+    BUCKET_NOT_FOUND("Bucket not found"),;
 
     ErrorCode(String message) {
         this.message = message;

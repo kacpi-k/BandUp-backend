@@ -1,4 +1,4 @@
-package dev.kkoncki.bandup.file.management;
+package dev.kkoncki.bandup.file.management.service;
 
 public interface FileStorageService {
     String uploadFile(byte[] file, String userId, String originalFileName, String contentType);

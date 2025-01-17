@@ -4,6 +4,8 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import dev.kkoncki.bandup.commons.ApplicationException;
+import dev.kkoncki.bandup.file.management.service.FileManagementService;
+import dev.kkoncki.bandup.file.management.service.FirebaseFileStorageService;
 import dev.kkoncki.bandup.firebase.FirebaseProps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +34,9 @@ class FirebaseFileStorageServiceTest {
     @Mock
     private FirebaseProps firebaseProps;
 
+    @Mock
+    private FileManagementService fileManagementService;
+
     @InjectMocks
     private FirebaseFileStorageService fileStorageService;
 
@@ -56,6 +61,7 @@ class FirebaseFileStorageServiceTest {
         assertNotNull(mediaLink);
         assertEquals("https://example.com/media-link", mediaLink);
         verify(bucket, times(1)).create(anyString(), eq(file), eq(contentType));
+        verify(fileManagementService, times(1)).save(any(File.class));
     }
 
     @Test
@@ -69,6 +75,8 @@ class FirebaseFileStorageServiceTest {
 
         assertThrows(ApplicationException.class, () ->
                 fileStorageService.uploadFile(file, userId, originalFileName, contentType));
+
+        verify(fileManagementService, never()).save(any(File.class));
     }
 
     @Test
@@ -106,6 +114,7 @@ class FirebaseFileStorageServiceTest {
         fileStorageService.deleteFile(fileName);
 
         verify(blob, times(1)).delete();
+        verify(fileManagementService, times(1)).delete("test");
     }
 
     @Test
@@ -116,6 +125,8 @@ class FirebaseFileStorageServiceTest {
 
         assertThrows(ApplicationException.class, () ->
                 fileStorageService.deleteFile(fileName));
+
+        verify(fileManagementService, never()).delete(anyString());
     }
 
     @Test
