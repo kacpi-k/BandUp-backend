@@ -15,5 +15,6 @@
     <modules>
         <module>security</module>
         <module>firebase</module>
+        <module>web-socket</module>
     </modules>
 </project>

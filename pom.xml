@@ -31,7 +31,9 @@
 		<jjwt.version>0.9.1</jjwt.version>
 		<jaxb-api.version>2.3.0</jaxb-api.version>
 		<mockito.version>5.5.0</mockito.version>
-		<firebase-admin-version>9.1.1</firebase-admin-version>
+		<firebase-admin.version>9.1.1</firebase-admin.version>
+		<web-socket.version>3.4.1</web-socket.version>
+		<messaging.version>6.2.1</messaging.version>
 	</properties>
 
 	<dependencies>

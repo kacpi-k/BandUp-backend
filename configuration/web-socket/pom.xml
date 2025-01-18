@@ -9,7 +9,7 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>firebase</artifactId>
+    <artifactId>web-socket</artifactId>
     <version>${revision}</version>
 
     <dependencies>
@@ -19,9 +19,19 @@
             <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>com.google.firebase</groupId>
-            <artifactId>firebase-admin</artifactId>
-            <version>${firebase-admin.version}</version>
+            <groupId>dev.kkoncki.bandup</groupId>
+            <artifactId>security</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+            <version>${web-socket.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-messaging</artifactId>
+            <version>${messaging.version}</version>
         </dependency>
     </dependencies>
 
