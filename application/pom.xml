@@ -71,5 +71,20 @@
             <artifactId>file-management-rest</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>dev.kkoncki.bandup</groupId>
+            <artifactId>chat-domain</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.kkoncki.bandup</groupId>
+            <artifactId>chat-infrastructure</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.kkoncki.bandup</groupId>
+            <artifactId>chat-rest</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 </project>

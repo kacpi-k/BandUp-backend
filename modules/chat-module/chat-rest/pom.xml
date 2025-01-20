@@ -23,5 +23,10 @@
             <artifactId>rest</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>dev.kkoncki.bandup</groupId>
+            <artifactId>web-socket</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 </project>

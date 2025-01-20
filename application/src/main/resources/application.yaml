@@ -30,3 +30,10 @@ spring:
 app:
   firebase:
     bucket: ${FIREBASE_CLOUD_STORAGE_BUCKET}
+
+logging:
+  level:
+    org:
+      springframework:
+        messaging: DEBUG
+        web: DEBUG
