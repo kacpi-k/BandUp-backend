@@ -9,3 +9,5 @@ databaseChangeLog:
       file: classpath:db/changelog/_main/db.changelog-band-module.yml
   - include:
       file: classpath:db/changelog/_main/db.changelog-file-management-module.yml
+  - include:
+      file: classpath:db/changelog/_main/db.changelog-chat-module.yml

@@ -1,6 +1,7 @@
 package dev.kkoncki.bandup.band.forms;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,6 +23,7 @@ public class UpdateBandForm {
     @Size(max = 255, message = "Description must not exceed 255 characters")
     private String description;
 
+    @NotEmpty(message = "Genres list must not be empty")
     private List<String> genres;
 }
 
