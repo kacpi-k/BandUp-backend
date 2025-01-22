@@ -5,28 +5,34 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>dev.kkoncki.bandup</groupId>
-        <artifactId>chat-module</artifactId>
+        <artifactId>configuration</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>chat-rest</artifactId>
+    <artifactId>web-socket</artifactId>
     <version>${revision}</version>
 
     <dependencies>
         <dependency>
             <groupId>dev.kkoncki.bandup</groupId>
-            <artifactId>chat-domain</artifactId>
+            <artifactId>domain</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>dev.kkoncki.bandup</groupId>
-            <artifactId>rest</artifactId>
+            <artifactId>security</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>dev.kkoncki.bandup</groupId>
-            <artifactId>web-socket</artifactId>
-            <version>${revision}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+            <version>${web-socket.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-messaging</artifactId>
+            <version>${messaging.version}</version>
         </dependency>
     </dependencies>
+
 </project>
