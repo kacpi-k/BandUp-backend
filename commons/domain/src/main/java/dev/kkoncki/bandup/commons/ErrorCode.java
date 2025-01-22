@@ -20,8 +20,7 @@ public enum ErrorCode {
     FAILED_TO_DELETE_FILE("Failed to delete file"),
     FAILED_TO_GENERATE_FILE_URL("Failed to generate file URL"),
     BUCKET_NOT_FOUND("Bucket not found"),
-    INVALID_TOKEN("Invalid JWT token"),
-    MISSING_OR_INVALID_AUTH_HEADER("Missing or invalid Authorization header"),;
+    UNAUTHORIZED("Unauthorized attempt to send message"),;
 
     ErrorCode(String message) {
         this.message = message;
