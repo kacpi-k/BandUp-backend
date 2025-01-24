@@ -20,7 +20,12 @@ public enum ErrorCode {
     FAILED_TO_DELETE_FILE("Failed to delete file"),
     FAILED_TO_GENERATE_FILE_URL("Failed to generate file URL"),
     BUCKET_NOT_FOUND("Bucket not found"),
-    UNAUTHORIZED("Unauthorized attempt to send message"),;
+    UNAUTHORIZED("Unauthorized attempt to send message"),
+    INVALID_MEDIA_TYPE("Invalid media type"),
+    POST_NOT_FOUND("Post not found"),
+    COMMENT_NOT_FOUND("Comment not found"),
+    POST_ALREADY_LIKED("Post already liked"),
+    POST_NOT_LIKED("Post not liked"),;
 
     ErrorCode(String message) {
         this.message = message;
