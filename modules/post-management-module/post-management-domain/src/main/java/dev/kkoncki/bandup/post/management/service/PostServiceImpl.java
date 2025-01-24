@@ -112,9 +112,7 @@ public class PostServiceImpl implements PostService {
                 .build();
 
         repository.saveComment(comment);
-
-        post.setCommentsCount(post.getCommentsCount() + 1);
-        repository.savePost(post);
+        repository.updatePostInteractions(post.getId(), 0, 1);
 
         return comment;
     }
@@ -158,7 +156,7 @@ public class PostServiceImpl implements PostService {
             throw new ApplicationException(ErrorCode.POST_NOT_LIKED);
         }
 
-        repository.deletePostLike(postId);
+        repository.deletePostLike(postId, userId);
         repository.updatePostInteractions(postId, -1, 0);
     }
 }

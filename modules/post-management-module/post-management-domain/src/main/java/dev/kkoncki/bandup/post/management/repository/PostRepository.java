@@ -21,5 +21,5 @@ public interface PostRepository {
     void updatePostInteractions(String postId, int likesDelta, int commentsDelta);
     boolean isPostLikedByUser(String postId, String userId);
     void savePostLike(String postId, String userId);
-    void deletePostLike(String postId);
+    void deletePostLike(String postId, String userId);
 }

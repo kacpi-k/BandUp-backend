@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+        file: classpath:db/changelog/post-management/create-post-table.xml
+  - include:
+        file: classpath:db/changelog/post-management/create-comment-table.xml
+  - include:
+        file: classpath:db/changelog/post-management/create-post-like-table.xml

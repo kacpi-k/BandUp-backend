@@ -20,7 +20,6 @@ public class CreatePostForm {
     @Size(max = 5000, message = "Content must have at most 5000 characters.")
     private String content;
 
-    @NotBlank(message = "Media URL must not be blank")
     private String mediaUrl;
 
 }
