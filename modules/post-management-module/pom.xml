@@ -5,20 +5,17 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>dev.kkoncki.bandup</groupId>
-        <artifactId>parent</artifactId>
+        <artifactId>modules</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>modules</artifactId>
+    <artifactId>post-management-module</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
     <modules>
-        <module>user-management-module</module>
-        <module>band-module</module>
-        <module>chat-module</module>
-        <module>file-management-module</module>
-        <module>interaction-management-module</module>
-        <module>auth-module</module>
-        <module>post-management-module</module>
+        <module>post-management-domain</module>
+        <module>post-management-infrastructure</module>
+        <module>post-management-rest</module>
     </modules>
+
 </project>
