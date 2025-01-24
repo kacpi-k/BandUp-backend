@@ -5,8 +5,8 @@ import dev.kkoncki.bandup.file.management.File;
 import dev.kkoncki.bandup.file.management.service.FileManagementService;
 import dev.kkoncki.bandup.post.management.forms.AddCommentForm;
 import dev.kkoncki.bandup.post.management.forms.CreatePostForm;
-import dev.kkoncki.bandup.post.management.repository.PostRepository;
-import dev.kkoncki.bandup.post.management.service.PostServiceImpl;
+import dev.kkoncki.bandup.post.management.repository.PostManagementRepository;
+import dev.kkoncki.bandup.post.management.service.PostManagementServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,16 +22,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class PostServiceTest {
+class PostManagementServiceTest {
 
     @Mock
-    private PostRepository repository;
+    private PostManagementRepository repository;
 
     @Mock
     private FileManagementService fileManagementService;
 
     @InjectMocks
-    private PostServiceImpl postService;
+    private PostManagementServiceImpl postService;
 
     private CreatePostForm createPostForm;
     private AddCommentForm addCommentForm;

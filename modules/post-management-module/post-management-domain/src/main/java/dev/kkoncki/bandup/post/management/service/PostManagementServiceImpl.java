@@ -9,7 +9,7 @@ import dev.kkoncki.bandup.post.management.MediaType;
 import dev.kkoncki.bandup.post.management.Post;
 import dev.kkoncki.bandup.post.management.forms.AddCommentForm;
 import dev.kkoncki.bandup.post.management.forms.CreatePostForm;
-import dev.kkoncki.bandup.post.management.repository.PostRepository;
+import dev.kkoncki.bandup.post.management.repository.PostManagementRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -17,12 +17,12 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class PostServiceImpl implements PostService {
+public class PostManagementServiceImpl implements PostManagementService {
 
-    private final PostRepository repository;
+    private final PostManagementRepository repository;
     private final FileManagementService fileManagementService;
 
-    public PostServiceImpl(PostRepository repository, FileManagementService fileManagementService) {
+    public PostManagementServiceImpl(PostManagementRepository repository, FileManagementService fileManagementService) {
         this.repository = repository;
         this.fileManagementService = fileManagementService;
     }

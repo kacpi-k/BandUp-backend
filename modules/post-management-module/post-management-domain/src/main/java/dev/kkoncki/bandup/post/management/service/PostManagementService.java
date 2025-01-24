@@ -10,7 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import java.util.List;
 
 @Validated
-public interface PostService {
+public interface PostManagementService {
     Post createPost(@Valid CreatePostForm form);
     void deletePost(String postId, String userId);
     List<Post> getPostsByUserId(String userId);

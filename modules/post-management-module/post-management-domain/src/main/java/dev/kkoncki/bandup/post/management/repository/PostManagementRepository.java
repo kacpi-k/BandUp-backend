@@ -6,7 +6,7 @@ import dev.kkoncki.bandup.post.management.Post;
 import java.util.List;
 import java.util.Optional;
 
-public interface PostRepository {
+public interface PostManagementRepository {
     void savePost(Post post);
     void deletePost(String postId);
     Optional<Post> findPostById(String postId);

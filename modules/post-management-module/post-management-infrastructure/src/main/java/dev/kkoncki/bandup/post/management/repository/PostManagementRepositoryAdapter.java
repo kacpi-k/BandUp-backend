@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class PostRepositoryAdapter implements PostRepository {
+public class PostManagementRepositoryAdapter implements PostManagementRepository {
 
     private final JpaPostRepository jpaPostRepository;
     private final JpaCommentRepository jpaCommentRepository;
     private final JpaPostLikeRepository jpaPostLikeRepository;
 
-    public PostRepositoryAdapter(JpaPostRepository jpaPostRepository, JpaCommentRepository jpaCommentRepository, JpaPostLikeRepository jpaPostLikeRepository) {
+    public PostManagementRepositoryAdapter(JpaPostRepository jpaPostRepository, JpaCommentRepository jpaCommentRepository, JpaPostLikeRepository jpaPostLikeRepository) {
         this.jpaPostRepository = jpaPostRepository;
         this.jpaCommentRepository = jpaCommentRepository;
         this.jpaPostLikeRepository = jpaPostLikeRepository;
