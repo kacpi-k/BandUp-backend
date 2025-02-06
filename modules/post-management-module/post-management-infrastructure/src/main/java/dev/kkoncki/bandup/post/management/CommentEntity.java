@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 
 @Entity
-@Table(name = "comment")
+@Table(name = "comment", schema = "public")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

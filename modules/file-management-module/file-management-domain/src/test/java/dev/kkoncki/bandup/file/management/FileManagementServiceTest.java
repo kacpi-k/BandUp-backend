@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class FileManagementServiceImplTest {
+class FileManagementServiceTest {
 
     @Mock
     private FileManagementRepository repository;
