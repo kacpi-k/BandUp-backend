@@ -4,6 +4,7 @@ import dev.kkoncki.bandup.commons.ApplicationException;
 import dev.kkoncki.bandup.commons.ErrorCode;
 import dev.kkoncki.bandup.user.management.User;
 import dev.kkoncki.bandup.user.management.forms.CreateUserForm;
+import dev.kkoncki.bandup.user.management.forms.UpdateUserLocationForm;
 import dev.kkoncki.bandup.user.management.repository.UserManagementRepository;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,11 @@ public class UserManagementServiceImpl implements UserManagementService {
                 .instruments(new ArrayList<>())
                 .bio(null)
                 .genres(new ArrayList<>())
+                .imageUrl(null)
+                .latitude(null)
+                .longitude(null)
+                .city(null)
+                .country(null)
                 .build();
 
         return userManagementRepository.save(user);
@@ -81,5 +87,29 @@ public class UserManagementServiceImpl implements UserManagementService {
         } else {
             user.getGenres().add(genreId);
         }
+    }
+
+    @Override
+    public void updateUserLocation(String userId, UpdateUserLocationForm form) {
+        User user = get(userId);
+        user.setLatitude(form.getLatitude());
+        user.setLongitude(form.getLongitude());
+        user.setCity(form.getCity());
+        user.setCountry(form.getCountry());
+        userManagementRepository.save(user);
+    }
+
+    @Override
+    public void updateBio(String userId, String bio) {
+        User user = get(userId);
+        user.setBio(bio);
+        userManagementRepository.save(user);
+    }
+
+    @Override
+    public void updateImageUrl(String userId, String imageUrl) {
+        User user = get(userId);
+        user.setImageUrl(imageUrl);
+        userManagementRepository.save(user);
     }
 }

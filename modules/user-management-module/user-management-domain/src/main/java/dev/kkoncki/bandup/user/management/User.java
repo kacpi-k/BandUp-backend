@@ -22,4 +22,9 @@ public class User {
     private List<String> instruments;
     private String bio;
     private List<String> genres;
+    private String imageUrl;
+    private Double latitude;
+    private Double longitude;
+    private String city;
+    private String country;
 }

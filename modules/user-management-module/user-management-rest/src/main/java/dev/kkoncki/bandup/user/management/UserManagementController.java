@@ -2,6 +2,7 @@ package dev.kkoncki.bandup.user.management;
 
 import dev.kkoncki.bandup.commons.LoggedUser;
 import dev.kkoncki.bandup.user.management.forms.CreateUserForm;
+import dev.kkoncki.bandup.user.management.forms.UpdateUserLocationForm;
 import dev.kkoncki.bandup.user.management.service.UserManagementService;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,5 +46,10 @@ public class UserManagementController {
     @PostMapping("/add-or-remove-genre/{genreId}")
     public void addOrRemoveGenre(@PathVariable("genreId") String genreId) {
         userManagementService.addOrRemoveGenre(genreId, loggedUser.getUserId());
+    }
+
+    @PutMapping("/location")
+    public void updateUserLocation(@RequestBody UpdateUserLocationForm form) {
+        userManagementService.updateUserLocation(loggedUser.getUserId(), form);
     }
 }
