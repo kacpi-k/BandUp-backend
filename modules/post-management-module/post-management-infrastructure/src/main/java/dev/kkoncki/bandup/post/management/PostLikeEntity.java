@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
-@Table(name = "post_like")
+@Table(name = "post_like", schema = "public")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

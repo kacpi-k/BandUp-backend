@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -113,6 +114,45 @@ class PostManagementServiceTest {
     }
 
     @Test
+    void shouldGetPostsByUserId() {
+        List<Post> expectedPosts = List.of(
+                Post.builder().id("post-id-1").userId("user-id").content("Content 1").build(),
+                Post.builder().id("post-id-2").userId("user-id").content("Content 2").build()
+        );
+        when(repository.findPostsByUser("user-id")).thenReturn(expectedPosts);
+
+        List<Post> result = postService.getPostsByUserId("user-id");
+
+        assertEquals(expectedPosts.size(), result.size());
+        assertEquals(expectedPosts, result);
+        verify(repository, times(1)).findPostsByUser("user-id");
+    }
+
+    @Test
+    void shouldGetPostById() {
+        Post expectedPost = Post.builder()
+                .id("post-id")
+                .userId("user-id")
+                .content("Content")
+                .build();
+        when(repository.findPostById("post-id")).thenReturn(Optional.of(expectedPost));
+
+        Post result = postService.getPostById("post-id");
+
+        assertEquals(expectedPost, result);
+        verify(repository, times(1)).findPostById("post-id");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenPostNotFound() {
+        when(repository.findPostById("non-existing-id")).thenReturn(Optional.empty());
+
+        assertThrows(ApplicationException.class, () -> postService.getPostById("non-existing-id"));
+
+        verify(repository, times(1)).findPostById("non-existing-id");
+    }
+
+    @Test
     void shouldAddCommentToPost() {
         when(repository.findPostById("post-id")).thenReturn(Optional.of(post));
         doAnswer(invocation -> invocation.getArgument(0))
@@ -143,6 +183,45 @@ class PostManagementServiceTest {
 
         assertThrows(ApplicationException.class, () -> postService.deleteComment("comment-id", "another-user-id"));
         verify(repository, never()).deleteComment(anyString());
+    }
+
+    @Test
+    void shouldGetCommentsByPost() {
+        List<Comment> expectedComments = List.of(
+                Comment.builder().id("comment-id-1").postId("post-id").content("Comment 1").build(),
+                Comment.builder().id("comment-id-2").postId("post-id").content("Comment 2").build()
+        );
+        when(repository.findCommentsByPost("post-id")).thenReturn(expectedComments);
+
+        List<Comment> result = postService.getCommentsByPost("post-id");
+
+        assertEquals(expectedComments.size(), result.size());
+        assertEquals(expectedComments, result);
+        verify(repository, times(1)).findCommentsByPost("post-id");
+    }
+
+    @Test
+    void shouldGetCommentById() {
+        Comment expectedComment = Comment.builder()
+                .id("comment-id")
+                .postId("post-id")
+                .content("Comment content")
+                .build();
+        when(repository.findCommentById("comment-id")).thenReturn(Optional.of(expectedComment));
+
+        Comment result = postService.getCommentById("comment-id");
+
+        assertEquals(expectedComment, result);
+        verify(repository, times(1)).findCommentById("comment-id");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCommentNotFound() {
+        when(repository.findCommentById("non-existing-id")).thenReturn(Optional.empty());
+
+        assertThrows(ApplicationException.class, () -> postService.getCommentById("non-existing-id"));
+
+        verify(repository, times(1)).findCommentById("non-existing-id");
     }
 
     @Test
