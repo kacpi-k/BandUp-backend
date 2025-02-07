@@ -28,7 +28,8 @@ public enum ErrorCode {
     POST_NOT_FOUND("Post not found"),
     COMMENT_NOT_FOUND("Comment not found"),
     POST_ALREADY_LIKED("Post already liked"),
-    POST_NOT_LIKED("Post not liked"),;
+    POST_NOT_LIKED("Post not liked"),
+    UNKNOWN_ERROR("Unknown error");
 
     ErrorCode(String message) {
         this.message = message;
