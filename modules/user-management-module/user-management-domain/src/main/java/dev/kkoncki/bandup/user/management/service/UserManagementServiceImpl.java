@@ -4,6 +4,8 @@ import dev.kkoncki.bandup.commons.ApplicationException;
 import dev.kkoncki.bandup.commons.ErrorCode;
 import dev.kkoncki.bandup.user.management.User;
 import dev.kkoncki.bandup.user.management.forms.CreateUserForm;
+import dev.kkoncki.bandup.user.management.forms.UpdateUserLocationForm;
+import dev.kkoncki.bandup.user.management.instrument.user.instrument.service.UserInstrumentService;
 import dev.kkoncki.bandup.user.management.repository.UserManagementRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +17,11 @@ import java.util.UUID;
 public class UserManagementServiceImpl implements UserManagementService {
 
     private final UserManagementRepository userManagementRepository;
+    private final UserInstrumentService userInstrumentService;
 
-    public UserManagementServiceImpl(UserManagementRepository userManagementRepository) {
+    public UserManagementServiceImpl(UserManagementRepository userManagementRepository, UserInstrumentService userInstrumentService) {
         this.userManagementRepository = userManagementRepository;
+        this.userInstrumentService = userInstrumentService;
     }
 
     private User getOrThrowUser(String id) {
@@ -42,6 +46,11 @@ public class UserManagementServiceImpl implements UserManagementService {
                 .instruments(new ArrayList<>())
                 .bio(null)
                 .genres(new ArrayList<>())
+                .imageUrl(null)
+                .latitude(null)
+                .longitude(null)
+                .city(null)
+                .country(null)
                 .build();
 
         return userManagementRepository.save(user);
@@ -62,15 +71,27 @@ public class UserManagementServiceImpl implements UserManagementService {
     }
 
     @Override
-    public void addOrRemoveInstrument(String userInstrumentId, String userId) {
+    public void addUserInstrument(String userInstrumentId, String userId) {
         User user = get(userId);
+
         if (user.getInstruments().contains(userInstrumentId)) {
-            user.getInstruments().remove(userInstrumentId);
-        } else {
-            user.getInstruments().add(userInstrumentId);
+            throw new ApplicationException(ErrorCode.USER_ALREADY_HAS_INSTRUMENT);
         }
 
-        // TODO remove in db
+        user.getInstruments().add(userInstrumentId);
+        userManagementRepository.save(user);
+    }
+
+    @Override
+    public void removeUserInstrument(String userInstrumentId, String userId) {
+        User user = get(userId);
+        if (!user.getInstruments().contains(userInstrumentId)) {
+            throw new ApplicationException(ErrorCode.USER_DOES_NOT_HAVE_INSTRUMENT);
+        }
+
+        user.getInstruments().remove(userInstrumentId);
+        userManagementRepository.save(user);
+        userInstrumentService.delete(userInstrumentId);
     }
 
     @Override
@@ -81,5 +102,29 @@ public class UserManagementServiceImpl implements UserManagementService {
         } else {
             user.getGenres().add(genreId);
         }
+    }
+
+    @Override
+    public void updateUserLocation(String userId, UpdateUserLocationForm form) {
+        User user = get(userId);
+        user.setLatitude(form.getLatitude());
+        user.setLongitude(form.getLongitude());
+        user.setCity(form.getCity());
+        user.setCountry(form.getCountry());
+        userManagementRepository.save(user);
+    }
+
+    @Override
+    public void updateBio(String userId, String bio) {
+        User user = get(userId);
+        user.setBio(bio);
+        userManagementRepository.save(user);
+    }
+
+    @Override
+    public void updateImageUrl(String userId, String imageUrl) {
+        User user = get(userId);
+        user.setImageUrl(imageUrl);
+        userManagementRepository.save(user);
     }
 }

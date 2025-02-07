@@ -9,3 +9,5 @@ databaseChangeLog:
       file: classpath:db/changelog/user-management/create-user-instrument-table.xml
   - include:
       file: classpath:db/changelog/user-management/create-user-genres-table.xml
+  - include:
+      file: classpath:db/changelog/user-management/update-user-table.xml

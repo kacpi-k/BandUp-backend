@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface JpaUserInstrumentRepository extends JpaRepository<UserInstrumentEntity, String> {
     List<UserInstrumentEntity> findAllByUser_Id(String userId);
+    boolean existsByUserIdAndInstrumentId(String userId, String instrumentId);
 }

@@ -26,7 +26,12 @@ public class UserInstrumentServiceImpl implements UserInstrumentService {
 
     @Override
     public UserInstrument save(CreateUserInstrumentForm form, String userId) {
-        //TODO add check if UserInstrument with given instrumentId and userId already exists
+        boolean exists = userInstrumentRepository.existsByUserIdAndInstrumentId(userId, form.getInstrumentId());
+
+        if (exists) {
+            throw new ApplicationException(ErrorCode.USER_INSTRUMENT_ALREADY_EXISTS);
+        }
+
         UserInstrument userInstrument = UserInstrument.builder()
                 .id(UUID.randomUUID().toString())
                 .userId(userId)
@@ -52,5 +57,10 @@ public class UserInstrumentServiceImpl implements UserInstrumentService {
     @Override
     public List<UserInstrument> getAllByUserId(String userId) {
         return userInstrumentRepository.findAllByUserId(userId);
+    }
+
+    @Override
+    public void delete(String id) {
+        userInstrumentRepository.delete(id);
     }
 }

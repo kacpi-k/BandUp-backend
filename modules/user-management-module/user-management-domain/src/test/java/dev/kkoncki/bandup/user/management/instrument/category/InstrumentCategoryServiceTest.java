@@ -1,75 +1,100 @@
 package dev.kkoncki.bandup.user.management.instrument.category;
 
+import dev.kkoncki.bandup.commons.ApplicationException;
+import dev.kkoncki.bandup.commons.ErrorCode;
 import dev.kkoncki.bandup.user.management.instrument.category.forms.CreateInstrumentCategoryForm;
 import dev.kkoncki.bandup.user.management.instrument.category.repository.InstrumentCategoryRepository;
-import dev.kkoncki.bandup.user.management.instrument.category.service.InstrumentCategoryService;
 import dev.kkoncki.bandup.user.management.instrument.category.service.InstrumentCategoryServiceImpl;
-import jakarta.validation.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-public class InstrumentCategoryServiceTest {
+@ExtendWith(MockitoExtension.class)
+class InstrumentCategoryServiceTest {
 
-    InstrumentCategoryRepository repository = new InstrumentCategoryRepositoryMock();
+    @Mock
+    private InstrumentCategoryRepository instrumentCategoryRepository;
 
-    InstrumentCategoryService service = new InstrumentCategoryServiceImpl(repository);
+    @InjectMocks
+    private InstrumentCategoryServiceImpl instrumentCategoryService;
 
-    private final ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-    private final Validator validator = validatorFactory.getValidator();
+    private CreateInstrumentCategoryForm createInstrumentCategoryForm;
+    private InstrumentCategory instrumentCategory;
 
-    private <T> void genericViolationSet(T form) {
-        Set<ConstraintViolation<T>> violations = validator.validate(form);
+    @BeforeEach
+    void setUp() {
+        createInstrumentCategoryForm = new CreateInstrumentCategoryForm("Percussion");
 
-        assertThrows(ConstraintViolationException.class, () -> {
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException("Validation failed", violations);
-            }
-        });
+        instrumentCategory = InstrumentCategory.builder()
+                .id("category-123")
+                .name("Percussion")
+                .build();
     }
 
     @Test
-    void getTest() {
-        CreateInstrumentCategoryForm form = new CreateInstrumentCategoryForm("Strings");
-        InstrumentCategory category = service.save(form);
+    void shouldSaveInstrumentCategorySuccessfully() {
+        when(instrumentCategoryRepository.save(any(InstrumentCategory.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        InstrumentCategory categoryFound = service.get(category.getId());
+        InstrumentCategory savedCategory = instrumentCategoryService.save(createInstrumentCategoryForm);
 
-        assertEquals(category.getId(), categoryFound.getId());
-        assertEquals(category.getName(), categoryFound.getName());
+        assertNotNull(savedCategory);
+        assertEquals("Percussion", savedCategory.getName());
+
+        verify(instrumentCategoryRepository, times(1)).save(any(InstrumentCategory.class));
     }
 
     @Test
-    void saveTest() {
-        CreateInstrumentCategoryForm form = new CreateInstrumentCategoryForm("Strings");
-        InstrumentCategory category = service.save(form);
+    void shouldGetInstrumentCategorySuccessfully() {
+        when(instrumentCategoryRepository.findById("category-123")).thenReturn(Optional.of(instrumentCategory));
 
-        assertNotNull(category.getId());
-        assertEquals("Strings", category.getName());
+        InstrumentCategory fetchedCategory = instrumentCategoryService.get("category-123");
+
+        assertNotNull(fetchedCategory);
+        assertEquals("category-123", fetchedCategory.getId());
+        assertEquals("Percussion", fetchedCategory.getName());
+
+        verify(instrumentCategoryRepository, times(1)).findById("category-123");
     }
 
     @Test
-    void getAllTest() {
-        CreateInstrumentCategoryForm form1 = new CreateInstrumentCategoryForm("Strings");
-        CreateInstrumentCategoryForm form2 = new CreateInstrumentCategoryForm("Percussion");
+    void shouldThrowExceptionWhenInstrumentCategoryNotFound() {
+        when(instrumentCategoryRepository.findById("invalid-id")).thenReturn(Optional.empty());
 
-        InstrumentCategory category1 = service.save(form1);
-        InstrumentCategory category2 = service.save(form2);
+        ApplicationException exception = assertThrows(ApplicationException.class,
+                () -> instrumentCategoryService.get("invalid-id"));
 
-        List<InstrumentCategory> categories = service.getAll();
-
-        assertTrue(categories.contains(category1));
-        assertTrue(categories.contains(category2));
-        assertEquals(2, categories.size());
+        assertEquals(ErrorCode.INSTRUMENT_CATEGORY_NOT_FOUND, exception.getErrorCode());
     }
 
     @Test
-    void validateInstrumentCategoryForm() {
-        CreateInstrumentCategoryForm form = new CreateInstrumentCategoryForm("T");
+    void shouldReturnAllInstrumentCategories() {
+        List<InstrumentCategory> categories = List.of(
+                new InstrumentCategory("category-123", "Percussion"),
+                new InstrumentCategory("category-456", "Strings"),
+                new InstrumentCategory("category-789", "Woodwind")
+        );
 
-        genericViolationSet(form);
+        when(instrumentCategoryRepository.findAll()).thenReturn(categories);
+
+        List<InstrumentCategory> result = instrumentCategoryService.getAll();
+
+        assertEquals(3, result.size());
+        assertEquals("Percussion", result.get(0).getName());
+        assertEquals("Strings", result.get(1).getName());
+        assertEquals("Woodwind", result.get(2).getName());
+
+        verify(instrumentCategoryRepository, times(1)).findAll();
     }
 }
+

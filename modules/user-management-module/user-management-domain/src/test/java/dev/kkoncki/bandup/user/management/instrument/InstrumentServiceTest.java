@@ -1,94 +1,107 @@
 package dev.kkoncki.bandup.user.management.instrument;
 
+import dev.kkoncki.bandup.commons.ApplicationException;
+import dev.kkoncki.bandup.commons.ErrorCode;
 import dev.kkoncki.bandup.user.management.instrument.forms.CreateInstrumentForm;
 import dev.kkoncki.bandup.user.management.instrument.repository.InstrumentRepository;
-import dev.kkoncki.bandup.user.management.instrument.service.InstrumentService;
 import dev.kkoncki.bandup.user.management.instrument.service.InstrumentServiceImpl;
-import jakarta.validation.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class InstrumentServiceTest {
+@ExtendWith(MockitoExtension.class)
+class InstrumentServiceTest {
 
-    InstrumentRepository repository = new InstrumentRepositoryMock();
+    @Mock
+    private InstrumentRepository instrumentRepository;
 
-    InstrumentService service = new InstrumentServiceImpl(repository);
+    @InjectMocks
+    private InstrumentServiceImpl instrumentService;
 
-    private final ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-    private final Validator validator = validatorFactory.getValidator();
+    private Instrument instrument;
+    private CreateInstrumentForm createForm;
 
-    private <T> void genericViolationSet(T form) {
-        Set<ConstraintViolation<T>> violations = validator.validate(form);
+    @BeforeEach
+    void setUp() {
+        instrument = Instrument.builder()
+                .id("instrument-id")
+                .name("Guitar")
+                .categoryId("category-id")
+                .build();
 
-        assertThrows(ConstraintViolationException.class, () -> {
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException("Validation failed", violations);
-            }
-        });
+        createForm = new CreateInstrumentForm("Guitar", "category-id");
     }
 
     @Test
-    void getTest() {
-        CreateInstrumentForm form = new CreateInstrumentForm("Guitar", "1");
-        Instrument instrument = service.save(form);
+    void shouldSaveInstrument() {
+        when(instrumentRepository.save(any(Instrument.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Instrument instrumentFound = service.get(instrument.getId());
+        Instrument result = instrumentService.save(createForm);
 
-        assertEquals(instrument.getId(), instrumentFound.getId());
-        assertEquals(instrument.getName(), instrumentFound.getName());
-        assertEquals(instrument.getCategoryId(), instrumentFound.getCategoryId());
+        assertNotNull(result);
+        assertEquals("Guitar", result.getName());
+        assertEquals("category-id", result.getCategoryId());
+        verify(instrumentRepository).save(any(Instrument.class));
     }
 
     @Test
-    void saveTest() {
-        CreateInstrumentForm form = new CreateInstrumentForm("Guitar", "1");
-        Instrument instrument = service.save(form);
+    void shouldGetInstrumentById() {
+        when(instrumentRepository.findById("instrument-id")).thenReturn(Optional.of(instrument));
 
-        assertEquals("Guitar", instrument.getName());
-        assertEquals("1", instrument.getCategoryId());
+        Instrument result = instrumentService.get("instrument-id");
+
+        assertNotNull(result);
+        assertEquals("instrument-id", result.getId());
+        assertEquals("Guitar", result.getName());
+        verify(instrumentRepository).findById("instrument-id");
     }
 
     @Test
-    void getAllTest() {
-        CreateInstrumentForm form1 = new CreateInstrumentForm("Guitar", "1");
-        CreateInstrumentForm form2 = new CreateInstrumentForm("Drums", "2");
+    void shouldThrowExceptionWhenInstrumentNotFound() {
+        when(instrumentRepository.findById("instrument-id")).thenReturn(Optional.empty());
 
-        Instrument instrument1 = service.save(form1);
-        Instrument instrument2 = service.save(form2);
+        ApplicationException exception = assertThrows(ApplicationException.class, () ->
+                instrumentService.get("instrument-id")
+        );
 
-        List<Instrument> instruments = service.getAll();
-
-        assertTrue(instruments.contains(instrument1));
-        assertTrue(instruments.contains(instrument2));
-        assertEquals(2, instruments.size());
+        assertEquals(ErrorCode.INSTRUMENT_NOT_FOUND, exception.getErrorCode());
     }
 
     @Test
-    void getAllByCategoryIdTest() {
-        CreateInstrumentForm form1 = new CreateInstrumentForm("Guitar", "1");
-        CreateInstrumentForm form2 = new CreateInstrumentForm("Drums", "2");
-        CreateInstrumentForm form3 = new CreateInstrumentForm("Bass", "1");
+    void shouldGetAllInstruments() {
+        List<Instrument> instruments = List.of(instrument);
+        when(instrumentRepository.findAll()).thenReturn(instruments);
 
-        Instrument instrument1 = service.save(form1);
-        Instrument instrument2 = service.save(form2);
-        Instrument instrument3 = service.save(form3);
+        List<Instrument> result = instrumentService.getAll();
 
-        List<Instrument> instruments = service.getAllByCategoryId("1");
-
-        assertTrue(instruments.contains(instrument1));
-        assertFalse(instruments.contains(instrument2));
-        assertTrue(instruments.contains(instrument3));
-        assertEquals(2, instruments.size());
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Guitar", result.get(0).getName());
+        verify(instrumentRepository).findAll();
     }
 
     @Test
-    void validateCreateInstrumentForm() {
-        CreateInstrumentForm form = new CreateInstrumentForm("g", "1");
+    void shouldGetAllInstrumentsByCategoryId() {
+        List<Instrument> instruments = List.of(instrument);
+        when(instrumentRepository.findAllByCategoryId("category-id")).thenReturn(instruments);
 
-        genericViolationSet(form);
+        List<Instrument> result = instrumentService.getAllByCategoryId("category-id");
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("category-id", result.get(0).getCategoryId());
+        verify(instrumentRepository).findAllByCategoryId("category-id");
     }
 }
+

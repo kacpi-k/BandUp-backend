@@ -18,4 +18,8 @@ public class ApplicationException extends RuntimeException {
         super(code.message);
         this.code = code;
     }
+
+    public ErrorCode getErrorCode() {
+        return code;
+    }
 }

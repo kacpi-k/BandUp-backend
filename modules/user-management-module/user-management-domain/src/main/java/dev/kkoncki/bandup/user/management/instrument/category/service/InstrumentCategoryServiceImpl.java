@@ -42,5 +42,4 @@ public class InstrumentCategoryServiceImpl implements InstrumentCategoryService 
     public List<InstrumentCategory> getAll() {
         return instrumentCategoryRepository.findAll();
     }
-
 }

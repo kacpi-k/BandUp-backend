@@ -34,4 +34,14 @@ public class UserInstrumentRepositoryAdapter implements UserInstrumentRepository
                 .map(UserInstrumentMapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public boolean existsByUserIdAndInstrumentId(String userId, String instrumentId) {
+        return jpaUserInstrumentRepository.existsByUserIdAndInstrumentId(userId, instrumentId);
+    }
+
+    @Override
+    public void delete(String id) {
+        jpaUserInstrumentRepository.deleteById(id);
+    }
 }

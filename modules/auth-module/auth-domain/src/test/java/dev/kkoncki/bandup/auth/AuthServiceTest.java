@@ -6,94 +6,163 @@ import dev.kkoncki.bandup.auth.forms.LoginForm;
 import dev.kkoncki.bandup.auth.repository.AuthRepository;
 import dev.kkoncki.bandup.auth.security.PasswordEncoder;
 import dev.kkoncki.bandup.auth.security.TokenProvider;
-import dev.kkoncki.bandup.auth.service.AuthService;
 import dev.kkoncki.bandup.auth.service.AuthServiceImpl;
-import dev.kkoncki.bandup.user.management.repository.UserManagementRepository;
+import dev.kkoncki.bandup.commons.ApplicationException;
+import dev.kkoncki.bandup.commons.ErrorCode;
+import dev.kkoncki.bandup.user.management.User;
 import dev.kkoncki.bandup.user.management.service.UserManagementService;
-import dev.kkoncki.bandup.user.management.service.UserManagementServiceImpl;
-import jakarta.validation.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class AuthServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AuthServiceTest {
 
-    AuthRepository authRepository = new AuthRepositoryMock();
-    PasswordEncoder encoder = new PasswordEncoderMock();
-    TokenProvider provider = new TokenProviderMock();
+    @Mock
+    private AuthRepository authRepository;
 
-    UserManagementRepository userManagementRepository = new UserManagementRepositoryMock();
-    UserManagementService userManagementService = new UserManagementServiceImpl(userManagementRepository);
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
-    AuthService authService = new AuthServiceImpl(authRepository, encoder, provider, userManagementService);
+    @Mock
+    private TokenProvider tokenProvider;
 
-    private final ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-    private final Validator validator = validatorFactory.getValidator();
+    @Mock
+    private UserManagementService userManagementService;
 
-    private <T> void genericViolationSet(T form) {
-        Set<ConstraintViolation<T>> violations = validator.validate(form);
+    @InjectMocks
+    private AuthServiceImpl authService;
 
-        assertThrows(ConstraintViolationException.class, () -> {
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException("Validation failed", violations);
-            }
-        });
-    }
+    private AuthUser authUser;
+    private User user;
+    private LoginForm loginForm;
+    private CreateUserWithPasswordForm createUserForm;
+    private ChangePasswordForm changePasswordForm;
 
     @BeforeEach
-    void setup() {
-        CreateUserWithPasswordForm form = new CreateUserWithPasswordForm();
-        form.setFirstName("Kacper");
-        form.setLastName("Koncki");
-        form.setEmail("test@test.pl");
-        form.setPassword("password123");
-        authService.createUserWithPassword(form);
+    void setUp() {
+        authUser = new AuthUser();
+        authUser.setId("user-id");
+        authUser.setEmail("test@test.com");
+        authUser.setPassword("encoded-password");
+
+        user = new User();
+        user.setId("user-id");
+        user.setBlocked(false);
+
+        loginForm = new LoginForm();
+        loginForm.setEmail("test@test.com");
+        loginForm.setPassword("password123");
+
+        createUserForm = new CreateUserWithPasswordForm();
+        createUserForm.setEmail("test@test.com");
+        createUserForm.setPassword("password123");
+
+        changePasswordForm = new ChangePasswordForm();
+        changePasswordForm.setEmail("test@test.com");
+        changePasswordForm.setOldPassword("old-password");
+        changePasswordForm.setNewPassword("new-password");
     }
 
     @Test
-    void successfulLoginTesT() {
-        LoginResponse response = authService.login(new LoginForm("test@test.pl", "password123"));
+    void shouldLoginSuccessfully() {
+        when(authRepository.findByEmail("test@test.com")).thenReturn(Optional.of(authUser));
+        when(userManagementService.get("user-id")).thenReturn(user);
+        when(passwordEncoder.matches("password123", "encoded-password")).thenReturn(true);
+        when(tokenProvider.generateToken("user-id")).thenReturn("jwt-token");
+
+        LoginResponse response = authService.login(loginForm);
 
         assertNotNull(response);
-        assertNotNull(response.getToken());
-        assertEquals("Bearer", response.getType());
+        assertEquals("jwt-token", response.token);
+        assertEquals("Bearer", response.type);
+        verify(authRepository).findByEmail("test@test.com");
+        verify(passwordEncoder).matches("password123", "encoded-password");
+        verify(tokenProvider).generateToken("user-id");
     }
 
     @Test
-    void userNotFoundTest() {
-        assertThrows(RuntimeException.class, () -> authService.login(new LoginForm("wrongemail@test.pl", "password123")));
+    void shouldThrowExceptionWhenUserNotFoundOnLogin() {
+        when(authRepository.findByEmail("test@test.com")).thenReturn(Optional.empty());
+
+        ApplicationException exception = assertThrows(ApplicationException.class, () ->
+                authService.login(loginForm)
+        );
+
+        assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
     }
 
     @Test
-    void incorrectPasswordTest() {
-        assertThrows(RuntimeException.class, () -> authService.login(new LoginForm("test@test.pl", "wrongpassword")));
+    void shouldThrowExceptionWhenUserIsBlocked() {
+        user.setBlocked(true);
+        when(authRepository.findByEmail("test@test.com")).thenReturn(Optional.of(authUser));
+        when(userManagementService.get("user-id")).thenReturn(user);
+
+        ApplicationException exception = assertThrows(ApplicationException.class, () ->
+                authService.login(loginForm)
+        );
+
+        assertEquals(ErrorCode.USER_BLOCKED, exception.getErrorCode());
     }
 
     @Test
-    void changePasswordTest() {
-        authService.changePassword(new ChangePasswordForm("test@test.pl", "password123", "newPassword"));
+    void shouldThrowExceptionOnInvalidPassword() {
+        when(authRepository.findByEmail("test@test.com")).thenReturn(Optional.of(authUser));
+        when(userManagementService.get("user-id")).thenReturn(user);
+        when(passwordEncoder.matches("password123", "encoded-password")).thenReturn(false);
 
-        Optional<AuthUser> user = authRepository.findByEmail("test@test.pl");
-        assertTrue(user.isPresent());
-        assertEquals("newPassword", user.get().getPassword());
+        ApplicationException exception = assertThrows(ApplicationException.class, () ->
+                authService.login(loginForm)
+        );
+
+        assertEquals(ErrorCode.INVALID_CREDENTIALS, exception.getErrorCode());
     }
 
     @Test
-    void validateCreateUserWithPasswordFormTest() {
-        CreateUserWithPasswordForm form = new CreateUserWithPasswordForm("pass");
+    void shouldCreateUserWithPassword() {
+        when(passwordEncoder.encode("password123")).thenReturn("encoded-password");
+        when(userManagementService.save(any(CreateUserWithPasswordForm.class)))
+                .thenReturn(user);
 
-        genericViolationSet(form);
+        authService.createUserWithPassword(createUserForm);
+
+        verify(authRepository).save(any(AuthUser.class));
+        verify(passwordEncoder).encode("password123");
     }
 
     @Test
-    void validateLogInFormTest() {
-        LoginForm form = new LoginForm("test", "pass");
+    void shouldChangePasswordSuccessfully() {
+        when(authRepository.findByEmail("test@test.com")).thenReturn(Optional.of(authUser));
+        when(passwordEncoder.matches("old-password", "encoded-password")).thenReturn(true);
+        when(passwordEncoder.encode("new-password")).thenReturn("encoded-new-password");
 
-        genericViolationSet(form);
+        authService.changePassword(changePasswordForm);
+
+        assertEquals("encoded-new-password", authUser.getPassword());
+        verify(authRepository).save(authUser);
+    }
+
+    @Test
+    void shouldThrowExceptionOnWrongOldPassword() {
+        when(authRepository.findByEmail("test@test.com")).thenReturn(Optional.of(authUser));
+        when(passwordEncoder.matches("old-password", "encoded-password")).thenReturn(false);
+
+        ApplicationException exception = assertThrows(ApplicationException.class, () ->
+                authService.changePassword(changePasswordForm)
+        );
+
+        assertEquals(ErrorCode.WRONG_PASSWORD, exception.getErrorCode());
     }
 }
+
 

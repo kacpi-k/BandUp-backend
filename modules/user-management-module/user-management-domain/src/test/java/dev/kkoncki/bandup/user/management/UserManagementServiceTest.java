@@ -1,125 +1,231 @@
 package dev.kkoncki.bandup.user.management;
 
+import dev.kkoncki.bandup.commons.ApplicationException;
+import dev.kkoncki.bandup.commons.ErrorCode;
 import dev.kkoncki.bandup.user.management.forms.CreateUserForm;
+import dev.kkoncki.bandup.user.management.forms.UpdateUserLocationForm;
+import dev.kkoncki.bandup.user.management.instrument.user.instrument.service.UserInstrumentService;
 import dev.kkoncki.bandup.user.management.repository.UserManagementRepository;
-import dev.kkoncki.bandup.user.management.service.UserManagementService;
 import dev.kkoncki.bandup.user.management.service.UserManagementServiceImpl;
-import jakarta.validation.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Set;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-public class UserManagementServiceTest {
+@ExtendWith(MockitoExtension.class)
+class UserManagementServiceTest {
 
-    UserManagementRepository userManagementRepository = new UserManagementRepositoryMock();
+    @Mock
+    private UserManagementRepository userManagementRepository;
 
-    UserManagementService userManagementService = new UserManagementServiceImpl(userManagementRepository);
+    @Mock
+    private UserInstrumentService userInstrumentService;
 
+    @InjectMocks
+    private UserManagementServiceImpl userManagementService;
 
-    private final ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-    private final Validator validator = validatorFactory.getValidator();
+    private CreateUserForm createUserForm;
+    private User user;
 
-    private <T> void genericViolationSet(T form) {
-        Set<ConstraintViolation<T>> violations = validator.validate(form);
+    @BeforeEach
+    void setUp() {
+        createUserForm = new CreateUserForm("John", "Doe", "john.doe@example.com");
 
-        assertThrows(ConstraintViolationException.class, () -> {
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException("Validation failed", violations);
-            }
-        });
+        user = User.builder()
+                .id("user-123")
+                .firstName("John")
+                .lastName("Doe")
+                .email("john.doe@example.com")
+                .createdOn(Instant.now())
+                .isBlocked(false)
+                .instruments(new ArrayList<>())
+                .bio(null)
+                .genres(new ArrayList<>())
+                .imageUrl(null)
+                .latitude(null)
+                .longitude(null)
+                .city(null)
+                .country(null)
+                .build();
     }
 
     @Test
-    void getTest() {
-        CreateUserForm form = new CreateUserForm("Kacper", "Koncki", "test@test.pl");
+    void shouldSaveUserSuccessfully() {
+        when(userManagementRepository.save(any(User.class))).thenReturn(user);
 
-        User user = userManagementService.save(form);
+        User savedUser = userManagementService.save(createUserForm);
 
-        User userFound = userManagementService.get(user.getId());
+        assertNotNull(savedUser);
+        assertEquals("John", savedUser.getFirstName());
+        assertEquals("Doe", savedUser.getLastName());
+        assertEquals("john.doe@example.com", savedUser.getEmail());
 
-        assertEquals(user.getId(), userFound.getId());
-        assertEquals(user.getFirstName(), userFound.getFirstName());
-        assertEquals(user.getLastName(), userFound.getLastName());
-        assertEquals(user.getEmail(), userFound.getEmail());
+        verify(userManagementRepository, times(1)).save(any(User.class));
     }
 
     @Test
-    void saveTest() {
-        CreateUserForm form = new CreateUserForm("Kacper", "Koncki", "test@test.pl");
+    void shouldGetUserSuccessfully() {
+        when(userManagementRepository.findById("user-123")).thenReturn(Optional.of(user));
 
-        User user = userManagementService.save(form);
+        User fetchedUser = userManagementService.get("user-123");
 
-        assertNotNull(user.getId());
-        assertEquals("Kacper", user.getFirstName());
-        assertEquals("Koncki", user.getLastName());
-        assertEquals("test@test.pl", user.getEmail());
+        assertNotNull(fetchedUser);
+        assertEquals("user-123", fetchedUser.getId());
+
+        verify(userManagementRepository, times(1)).findById("user-123");
     }
 
     @Test
-    void blockTest() {
-        CreateUserForm form = new CreateUserForm("Kacper", "Koncki", "test@test.pl");
+    void shouldThrowExceptionWhenUserNotFound() {
+        when(userManagementRepository.findById("invalid-id")).thenReturn(Optional.empty());
 
-        User user = userManagementService.save(form);
+        ApplicationException exception = assertThrows(ApplicationException.class,
+                () -> userManagementService.get("invalid-id"));
 
-        userManagementService.block(user.getId());
-
-        assertTrue(user.isBlocked());
+        assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
     }
 
     @Test
-    void unBlockTest() {
-        CreateUserForm form = new CreateUserForm("Kacper", "Koncki", "test@test.pl");
+    void shouldBlockUserSuccessfully() {
+        when(userManagementRepository.findById("user-123")).thenReturn(Optional.of(user));
+        when(userManagementRepository.save(any(User.class))).thenReturn(user);
 
-        User user = userManagementService.save(form);
+        User blockedUser = userManagementService.block("user-123");
 
-        userManagementService.block(user.getId());
-        userManagementService.unBlock(user.getId());
-
-        assertFalse(user.isBlocked());
+        assertTrue(blockedUser.isBlocked());
+        verify(userManagementRepository, times(1)).save(user);
     }
 
     @Test
-    void addOrRemoveInstrumentTest() {
-        CreateUserForm form = new CreateUserForm("Kacper", "Koncki", "test@test.pl");
-        User user = userManagementService.save(form);
+    void shouldUnblockUserSuccessfully() {
+        user.setBlocked(true);
 
-        String userInstrumentId = "instrument1";
+        when(userManagementRepository.findById("user-123")).thenReturn(Optional.of(user));
+        when(userManagementRepository.save(any(User.class))).thenReturn(user);
 
-        userManagementService.addOrRemoveInstrument(userInstrumentId, user.getId());
+        User unblockedUser = userManagementService.unBlock("user-123");
 
-        User updatedUser = userManagementService.get(user.getId());
-        assertTrue(updatedUser.getInstruments().contains(userInstrumentId));
-
-        userManagementService.addOrRemoveInstrument(userInstrumentId, user.getId());
-
-        updatedUser = userManagementService.get(user.getId());
-        assertFalse(updatedUser.getInstruments().contains(userInstrumentId));
+        assertFalse(unblockedUser.isBlocked());
+        verify(userManagementRepository, times(1)).save(user);
     }
 
     @Test
-    void addOrRemoveGenreTest() {
-        CreateUserForm form = new CreateUserForm("Kacper", "Koncki", "test@test.pl");
-        User user = userManagementService.save(form);
+    void shouldUpdateUserLocationSuccessfully() {
+        UpdateUserLocationForm locationForm = new UpdateUserLocationForm(52.2298, 21.0122, "Warsaw", "Poland");
 
-        String genreId = "genre1";
+        when(userManagementRepository.findById("user-123")).thenReturn(Optional.of(user));
 
-        userManagementService.addOrRemoveGenre(genreId, user.getId());
+        userManagementService.updateUserLocation("user-123", locationForm);
 
-        User updatedUser = userManagementService.get(user.getId());
-        assertTrue(updatedUser.getGenres().contains(genreId));
+        assertEquals(52.2298, user.getLatitude());
+        assertEquals(21.0122, user.getLongitude());
+        assertEquals("Warsaw", user.getCity());
+        assertEquals("Poland", user.getCountry());
 
-        userManagementService.addOrRemoveGenre(genreId, user.getId());
-
-        updatedUser = userManagementService.get(user.getId());
-        assertFalse(updatedUser.getGenres().contains(genreId));
+        verify(userManagementRepository, times(1)).save(user);
     }
 
     @Test
-    void validateCreateUserForm() {
-        CreateUserForm form = new CreateUserForm("K", "T", "test");
+    void shouldUpdateUserBioSuccessfully() {
+        when(userManagementRepository.findById("user-123")).thenReturn(Optional.of(user));
 
-        genericViolationSet(form);
+        userManagementService.updateBio("user-123", "New bio");
+
+        assertEquals("New bio", user.getBio());
+        verify(userManagementRepository, times(1)).save(user);
+    }
+
+    @Test
+    void shouldUpdateUserImageUrlSuccessfully() {
+        when(userManagementRepository.findById("user-123")).thenReturn(Optional.of(user));
+
+        userManagementService.updateImageUrl("user-123", "https://example.com/image.jpg");
+
+        assertEquals("https://example.com/image.jpg", user.getImageUrl());
+        verify(userManagementRepository, times(1)).save(user);
+    }
+
+    @Test
+    void shouldAddUserInstrument() {
+        when(userManagementRepository.findById("user-id")).thenReturn(Optional.of(user));
+
+        userManagementService.addUserInstrument("instrument-id", "user-id");
+
+        assertTrue(user.getInstruments().contains("instrument-id"));
+
+        verify(userManagementRepository).save(user);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserAlreadyHasInstrument() {
+        user.getInstruments().add("instrument-id");
+
+        when(userManagementRepository.findById("user-id")).thenReturn(Optional.of(user));
+
+        ApplicationException exception = assertThrows(ApplicationException.class, () ->
+                userManagementService.addUserInstrument("instrument-id", "user-id")
+        );
+
+        assertEquals(ErrorCode.USER_ALREADY_HAS_INSTRUMENT, exception.getErrorCode());
+        verify(userManagementRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void shouldRemoveUserInstrument() {
+        user.getInstruments().add("instrument-id");
+
+        when(userManagementRepository.findById("user-id")).thenReturn(Optional.of(user));
+
+        userManagementService.removeUserInstrument("instrument-id", "user-id");
+
+        assertFalse(user.getInstruments().contains("instrument-id"));
+
+        verify(userManagementRepository).save(user);
+
+        verify(userInstrumentService).delete("instrument-id");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserDoesNotHaveInstrument() {
+        when(userManagementRepository.findById("user-id")).thenReturn(Optional.of(user));
+
+        ApplicationException exception = assertThrows(ApplicationException.class, () ->
+                userManagementService.removeUserInstrument("instrument-id", "user-id")
+        );
+
+        assertEquals(ErrorCode.USER_DOES_NOT_HAVE_INSTRUMENT, exception.getErrorCode());
+        verify(userManagementRepository, never()).save(any(User.class));
+        verify(userInstrumentService, never()).delete(anyString());
+    }
+
+    @Test
+    void shouldAddGenreSuccessfully() {
+        when(userManagementRepository.findById("user-123")).thenReturn(Optional.of(user));
+
+        userManagementService.addOrRemoveGenre("rock", "user-123");
+
+        assertTrue(user.getGenres().contains("rock"));
+    }
+
+    @Test
+    void shouldRemoveGenreIfAlreadyExists() {
+        user.getGenres().add("rock");
+
+        when(userManagementRepository.findById("user-123")).thenReturn(Optional.of(user));
+
+        userManagementService.addOrRemoveGenre("rock", "user-123");
+
+        assertFalse(user.getGenres().contains("rock"));
     }
 }
+

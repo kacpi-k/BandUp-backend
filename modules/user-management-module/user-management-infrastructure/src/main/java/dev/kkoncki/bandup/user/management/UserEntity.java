@@ -44,4 +44,12 @@ public class UserEntity {
             inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
     private List<GenreEntity> genres;
+
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    private Double latitude;
+    private Double longitude;
+    private String city;
+    private String country;
 }

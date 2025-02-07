@@ -1,124 +1,143 @@
 package dev.kkoncki.bandup.user.management.instrument.user.instrument;
 
-import dev.kkoncki.bandup.user.management.User;
-import dev.kkoncki.bandup.user.management.UserManagementRepositoryMock;
-import dev.kkoncki.bandup.user.management.forms.CreateUserForm;
+import dev.kkoncki.bandup.commons.ApplicationException;
+import dev.kkoncki.bandup.commons.ErrorCode;
 import dev.kkoncki.bandup.user.management.instrument.SkillLevel;
 import dev.kkoncki.bandup.user.management.instrument.user.instrument.forms.CreateUserInstrumentForm;
 import dev.kkoncki.bandup.user.management.instrument.user.instrument.forms.UpdateUserInstrumentForm;
 import dev.kkoncki.bandup.user.management.instrument.user.instrument.repository.UserInstrumentRepository;
-import dev.kkoncki.bandup.user.management.instrument.user.instrument.service.UserInstrumentService;
 import dev.kkoncki.bandup.user.management.instrument.user.instrument.service.UserInstrumentServiceImpl;
-import dev.kkoncki.bandup.user.management.repository.UserManagementRepository;
-import dev.kkoncki.bandup.user.management.service.UserManagementService;
-import dev.kkoncki.bandup.user.management.service.UserManagementServiceImpl;
-import jakarta.validation.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-public class UserInstrumentServiceTest {
+@ExtendWith(MockitoExtension.class)
+class UserInstrumentServiceTest {
 
-    UserInstrumentRepository userInstrumentRepository = new UserInstrumentRepositoryMock();
-    UserManagementRepository userManagementRepository = new UserManagementRepositoryMock();
+    @Mock
+    private UserInstrumentRepository userInstrumentRepository;
 
-    UserInstrumentService userInstrumentService = new UserInstrumentServiceImpl(userInstrumentRepository);
-    UserManagementService userManagementService = new UserManagementServiceImpl(userManagementRepository);
+    @InjectMocks
+    private UserInstrumentServiceImpl userInstrumentService;
 
-    private final ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-    private final Validator validator = validatorFactory.getValidator();
+    private UserInstrument userInstrument;
+    private CreateUserInstrumentForm createForm;
+    private UpdateUserInstrumentForm updateForm;
 
-    private <T> void genericViolationSet(T form) {
-        Set<ConstraintViolation<T>> violations = validator.validate(form);
+    @BeforeEach
+    void setUp() {
+        userInstrument = UserInstrument.builder()
+                .id("instrument-id")
+                .userId("user-id")
+                .instrumentId("guitar-id")
+                .skillLevel(SkillLevel.ADVANCED)
+                .build();
 
-        assertThrows(ConstraintViolationException.class, () -> {
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException("Validation failed", violations);
-            }
-        });
-    }
-
-    private User createUser(String firstName, String lastName, String email) {
-        CreateUserForm userForm = new CreateUserForm(firstName, lastName, email);
-        return userManagementService.save(userForm);
-    }
-
-    private UserInstrument createUserInstrument(String instrumentId, SkillLevel skillLevel, String userId) {
-        CreateUserInstrumentForm userInstrumentForm = new CreateUserInstrumentForm(instrumentId, skillLevel);
-        return userInstrumentService.save(userInstrumentForm, userId);
+        createForm = new CreateUserInstrumentForm("guitar-id", SkillLevel.ADVANCED);
+        updateForm = new UpdateUserInstrumentForm("instrument-id", "piano-id", SkillLevel.BEGINNER);
     }
 
     @Test
-    void getTest() {
-        User user = createUser("Kacper", "Koncki", "test@test.pl");
-        UserInstrument userInstrument = createUserInstrument("1", SkillLevel.BEGINNER, user.getId());
+    void shouldSaveUserInstrument() {
+        when(userInstrumentRepository.existsByUserIdAndInstrumentId("user-id", "guitar-id")).thenReturn(false);
+        when(userInstrumentRepository.save(any(UserInstrument.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        UserInstrument userInstrumentFound = userInstrumentService.get(userInstrument.getId());
+        UserInstrument result = userInstrumentService.save(createForm, "user-id");
 
-        assertEquals(userInstrument.getId(), userInstrumentFound.getId());
-        assertEquals(user.getId(), userInstrumentFound.getUserId());
-        assertEquals(userInstrument.getInstrumentId(), userInstrumentFound.getInstrumentId());
-        assertEquals(userInstrument.getSkillLevel(), userInstrumentFound.getSkillLevel());
+        assertNotNull(result);
+        assertEquals("user-id", result.getUserId());
+        assertEquals("guitar-id", result.getInstrumentId());
+        assertEquals(SkillLevel.ADVANCED, result.getSkillLevel());
+
+        verify(userInstrumentRepository).save(any(UserInstrument.class));
     }
 
     @Test
-    void saveTest() {
-        User user = createUser("Kacper", "Koncki", "test@test.pl");
-        UserInstrument userInstrument = createUserInstrument("1", SkillLevel.BEGINNER, user.getId());
+    void shouldThrowExceptionWhenUserInstrumentAlreadyExists() {
+        when(userInstrumentRepository.existsByUserIdAndInstrumentId("user-id", "guitar-id")).thenReturn(true);
 
-        assertNotNull(userInstrument.getId());
-        assertEquals(user.getId(), userInstrument.getUserId());
-        assertEquals("1", userInstrument.getInstrumentId());
+        ApplicationException exception = assertThrows(ApplicationException.class, () ->
+                userInstrumentService.save(createForm, "user-id")
+        );
+
+        assertEquals(ErrorCode.USER_INSTRUMENT_ALREADY_EXISTS, exception.getErrorCode());
+        verify(userInstrumentRepository, never()).save(any(UserInstrument.class));
+    }
+
+    @Test
+    void shouldUpdateUserInstrument() {
+        when(userInstrumentRepository.findById("instrument-id")).thenReturn(Optional.of(userInstrument));
+
+        userInstrumentService.update(updateForm);
+
+        assertEquals("piano-id", userInstrument.getInstrumentId());
         assertEquals(SkillLevel.BEGINNER, userInstrument.getSkillLevel());
+
+        verify(userInstrumentRepository).save(userInstrument);
     }
 
     @Test
-    void updateTest() {
-        User user = createUser("Kacper", "Koncki", "test@test.pl");
-        UserInstrument userInstrument = createUserInstrument("1", SkillLevel.BEGINNER, user.getId());
+    void shouldThrowExceptionWhenUpdatingNonexistentUserInstrument() {
+        when(userInstrumentRepository.findById("instrument-id")).thenReturn(Optional.empty());
 
-        UpdateUserInstrumentForm updateUserInstrumentForm = new UpdateUserInstrumentForm(userInstrument.getId(), "1", SkillLevel.INTERMEDIATE);
-        userInstrumentService.update(updateUserInstrumentForm);
+        ApplicationException exception = assertThrows(ApplicationException.class, () ->
+                userInstrumentService.update(updateForm)
+        );
 
-        UserInstrument userInstrumentUpdated = userInstrumentService.get(userInstrument.getId());
-
-        assertEquals(userInstrument.getId(), userInstrumentUpdated.getId());
-        assertEquals(user.getId(), userInstrumentUpdated.getUserId());
-        assertEquals("1", userInstrumentUpdated.getInstrumentId());
-        assertEquals(SkillLevel.INTERMEDIATE, userInstrumentUpdated.getSkillLevel());
+        assertEquals(ErrorCode.USER_INSTRUMENT_NOT_FOUND, exception.getErrorCode());
+        verify(userInstrumentRepository, never()).save(any(UserInstrument.class));
     }
 
     @Test
-    void getAllByUserIdTest() {
-        User user1 = createUser("Kacper", "Koncki", "test@test.pl");
-        User user2 = createUser("Jan", "Kowalski", "test2@test.pl");
+    void shouldGetUserInstrumentById() {
+        when(userInstrumentRepository.findById("instrument-id")).thenReturn(Optional.of(userInstrument));
 
-        UserInstrument userInstrument1 = createUserInstrument("1", SkillLevel.BEGINNER, user1.getId());
-        UserInstrument userInstrument2 = createUserInstrument("2", SkillLevel.ADVANCED, user2.getId());
-        UserInstrument userInstrument3 = createUserInstrument("1", SkillLevel.EXPERT, user1.getId());
+        UserInstrument result = userInstrumentService.get("instrument-id");
 
-        List<UserInstrument> userInstruments = userInstrumentService.getAllByUserId(user1.getId());
-
-        assertEquals(2, userInstruments.size());
-        assertTrue(userInstruments.contains(userInstrument1));
-        assertFalse(userInstruments.contains(userInstrument2));
-        assertTrue(userInstruments.contains(userInstrument3));
+        assertNotNull(result);
+        assertEquals("instrument-id", result.getId());
+        assertEquals("guitar-id", result.getInstrumentId());
+        verify(userInstrumentRepository).findById("instrument-id");
     }
 
     @Test
-    void validateCreateUserInstrumentFormTest() {
-        CreateUserInstrumentForm userInstrumentForm = new CreateUserInstrumentForm("1", SkillLevel.BEGINNER);
+    void shouldThrowExceptionWhenGettingNonexistentUserInstrument() {
+        when(userInstrumentRepository.findById("instrument-id")).thenReturn(Optional.empty());
 
-        genericViolationSet(userInstrumentForm);
+        ApplicationException exception = assertThrows(ApplicationException.class, () ->
+                userInstrumentService.get("instrument-id")
+        );
+
+        assertEquals(ErrorCode.USER_INSTRUMENT_NOT_FOUND, exception.getErrorCode());
     }
 
     @Test
-    void validateUpdateUserInstrumentFormTest() {
-        UpdateUserInstrumentForm updateUserInstrumentForm = new UpdateUserInstrumentForm("1", "1", SkillLevel.BEGINNER);
+    void shouldGetAllUserInstrumentsByUserId() {
+        List<UserInstrument> instruments = List.of(userInstrument);
+        when(userInstrumentRepository.findAllByUserId("user-id")).thenReturn(instruments);
 
-        genericViolationSet(updateUserInstrumentForm);
+        List<UserInstrument> result = userInstrumentService.getAllByUserId("user-id");
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("guitar-id", result.get(0).getInstrumentId());
+        verify(userInstrumentRepository).findAllByUserId("user-id");
+    }
+
+    @Test
+    void shouldDeleteUserInstrument() {
+        userInstrumentService.delete("instrument-id");
+
+        verify(userInstrumentRepository).delete("instrument-id");
     }
 }
