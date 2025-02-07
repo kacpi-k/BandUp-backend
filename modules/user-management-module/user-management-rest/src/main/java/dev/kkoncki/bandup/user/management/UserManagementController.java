@@ -38,9 +38,14 @@ public class UserManagementController {
         return userManagementService.unBlock(id);
     }
 
-    @PostMapping("/add-or-remove-instrument/{userInstrumentId}")
-    public void addOrRemoveInstrument(@PathVariable("userInstrumentId") String userInstrumentId) {
-        userManagementService.addOrRemoveInstrument(userInstrumentId, loggedUser.getUserId());
+    @PostMapping("/add-user-instrument/{userInstrumentId}")
+    public void addUserInstrument(@PathVariable("userInstrumentId") String userInstrumentId) {
+        userManagementService.addUserInstrument(userInstrumentId, loggedUser.getUserId());
+    }
+
+    @DeleteMapping("/remove-user-instrument/{userInstrumentId}")
+    public void removeUserInstrument(@PathVariable("userInstrumentId") String userInstrumentId) {
+        userManagementService.removeUserInstrument(userInstrumentId, loggedUser.getUserId());
     }
 
     @PostMapping("/add-or-remove-genre/{genreId}")

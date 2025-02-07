@@ -1,77 +1,100 @@
 package dev.kkoncki.bandup.user.management.genre;
 
+import dev.kkoncki.bandup.commons.ApplicationException;
+import dev.kkoncki.bandup.commons.ErrorCode;
 import dev.kkoncki.bandup.commons.genre.Genre;
 import dev.kkoncki.bandup.commons.genre.forms.CreateGenreForm;
 import dev.kkoncki.bandup.commons.genre.repository.GenreRepository;
-import dev.kkoncki.bandup.commons.genre.service.GenreService;
 import dev.kkoncki.bandup.commons.genre.service.GenreServiceImpl;
-import jakarta.validation.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-public class GenreServiceTest {
+@ExtendWith(MockitoExtension.class)
+class GenreServiceTest {
 
-    GenreRepository genreRepository = new GenreRepositoryMock();
+    @Mock
+    private GenreRepository genreRepository;
 
-    GenreService genreService = new GenreServiceImpl(genreRepository);
+    @InjectMocks
+    private GenreServiceImpl genreService;
 
-    private final ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-    private final Validator validator = validatorFactory.getValidator();
+    private CreateGenreForm createGenreForm;
+    private Genre genre;
 
-    private <T> void genericViolationSet(T form) {
-        Set<ConstraintViolation<T>> violations = validator.validate(form);
+    @BeforeEach
+    void setUp() {
+        createGenreForm = new CreateGenreForm("Rock");
 
-        assertThrows(ConstraintViolationException.class, () -> {
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException("Validation failed", violations);
-            }
-        });
+        genre = Genre.builder()
+                .id("genre-123")
+                .name("Rock")
+                .build();
     }
 
     @Test
-    void getTest() {
-        CreateGenreForm form = new CreateGenreForm("rock");
-        Genre genre = genreService.save(form);
+    void shouldSaveGenreSuccessfully() {
+        when(genreRepository.save(any(Genre.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Genre genreFound = genreService.get(genre.getId());
+        Genre savedGenre = genreService.save(createGenreForm);
 
-        assertEquals(genre.getId(), genreFound.getId());
-        assertEquals(genre.getName(), genreFound.getName());
+        assertNotNull(savedGenre);
+        assertEquals("Rock", savedGenre.getName());
+
+        verify(genreRepository, times(1)).save(any(Genre.class));
     }
 
     @Test
-    void saveTest() {
-        CreateGenreForm form = new CreateGenreForm("rock");
+    void shouldGetGenreSuccessfully() {
+        when(genreRepository.findById("genre-123")).thenReturn(Optional.of(genre));
 
-        Genre genre = genreService.save(form);
+        Genre fetchedGenre = genreService.get("genre-123");
 
-        assertNotNull(genre.getId());
-        assertEquals("rock", genre.getName());
+        assertNotNull(fetchedGenre);
+        assertEquals("genre-123", fetchedGenre.getId());
+        assertEquals("Rock", fetchedGenre.getName());
+
+        verify(genreRepository, times(1)).findById("genre-123");
     }
 
     @Test
-    void getAllTest() {
-        CreateGenreForm form1 = new CreateGenreForm("rock");
-        CreateGenreForm form2 = new CreateGenreForm("pop");
+    void shouldThrowExceptionWhenGenreNotFound() {
+        when(genreRepository.findById("invalid-id")).thenReturn(Optional.empty());
 
-        Genre genre1 = genreService.save(form1);
-        Genre genre2 = genreService.save(form2);
+        ApplicationException exception = assertThrows(ApplicationException.class,
+                () -> genreService.get("invalid-id"));
 
-        List<Genre> genres = genreService.getAll();
-
-        assertTrue(genres.contains(genre1));
-        assertTrue(genres.contains(genre2));
-        assertEquals(2, genres.size());
+        assertEquals(ErrorCode.GENRE_NOT_FOUND, exception.getErrorCode());
     }
 
     @Test
-    void validateCreateGenreFormTest() {
-        CreateGenreForm form = new CreateGenreForm("r");
+    void shouldReturnAllGenres() {
+        List<Genre> genres = List.of(
+                new Genre("genre-123", "Rock"),
+                new Genre("genre-456", "Jazz"),
+                new Genre("genre-789", "Pop")
+        );
 
-        genericViolationSet(form);
+        when(genreRepository.findAll()).thenReturn(genres);
+
+        List<Genre> result = genreService.getAll();
+
+        assertEquals(3, result.size());
+        assertEquals("Rock", result.get(0).getName());
+        assertEquals("Jazz", result.get(1).getName());
+        assertEquals("Pop", result.get(2).getName());
+
+        verify(genreRepository, times(1)).findAll();
     }
 }
+

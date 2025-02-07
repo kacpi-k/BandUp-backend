@@ -12,7 +12,8 @@ public interface UserManagementService {
     User save(@Valid CreateUserForm form);
     User block(String id);
     User unBlock(String id);
-    void addOrRemoveInstrument(String userInstrumentId, String userId);
+    void addUserInstrument(String userInstrumentId, String userId);
+    void removeUserInstrument(String userInstrumentId, String userId);
     void addOrRemoveGenre(String genreId, String userId);
     void updateUserLocation(String userId, @Valid UpdateUserLocationForm form);
     void updateBio(String userId, String bio);

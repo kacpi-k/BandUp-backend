@@ -9,4 +9,6 @@ public interface UserInstrumentRepository {
     Optional<UserInstrument> findById(String id);
     UserInstrument save(UserInstrument userInstrument);
     List<UserInstrument> findAllByUserId(String userId);
+    boolean existsByUserIdAndInstrumentId(String userId, String instrumentId);
+    void delete(String id);
 }

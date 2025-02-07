@@ -40,4 +40,9 @@ public class UserInstrumentController {
     public List<UserInstrument> getAllByUserId(@PathVariable("userId") String userId) {
         return userInstrumentService.getAllByUserId(userId);
     }
+
+    @DeleteMapping("/delete/{id}")
+    public void delete(@PathVariable("id") String id) {
+        userInstrumentService.delete(id);
+    }
 }

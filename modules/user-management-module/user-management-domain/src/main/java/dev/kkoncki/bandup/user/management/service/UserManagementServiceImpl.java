@@ -5,6 +5,7 @@ import dev.kkoncki.bandup.commons.ErrorCode;
 import dev.kkoncki.bandup.user.management.User;
 import dev.kkoncki.bandup.user.management.forms.CreateUserForm;
 import dev.kkoncki.bandup.user.management.forms.UpdateUserLocationForm;
+import dev.kkoncki.bandup.user.management.instrument.user.instrument.service.UserInstrumentService;
 import dev.kkoncki.bandup.user.management.repository.UserManagementRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,9 +17,11 @@ import java.util.UUID;
 public class UserManagementServiceImpl implements UserManagementService {
 
     private final UserManagementRepository userManagementRepository;
+    private final UserInstrumentService userInstrumentService;
 
-    public UserManagementServiceImpl(UserManagementRepository userManagementRepository) {
+    public UserManagementServiceImpl(UserManagementRepository userManagementRepository, UserInstrumentService userInstrumentService) {
         this.userManagementRepository = userManagementRepository;
+        this.userInstrumentService = userInstrumentService;
     }
 
     private User getOrThrowUser(String id) {
@@ -68,15 +71,27 @@ public class UserManagementServiceImpl implements UserManagementService {
     }
 
     @Override
-    public void addOrRemoveInstrument(String userInstrumentId, String userId) {
+    public void addUserInstrument(String userInstrumentId, String userId) {
         User user = get(userId);
+
         if (user.getInstruments().contains(userInstrumentId)) {
-            user.getInstruments().remove(userInstrumentId);
-        } else {
-            user.getInstruments().add(userInstrumentId);
+            throw new ApplicationException(ErrorCode.USER_ALREADY_HAS_INSTRUMENT);
         }
 
-        // TODO remove in db
+        user.getInstruments().add(userInstrumentId);
+        userManagementRepository.save(user);
+    }
+
+    @Override
+    public void removeUserInstrument(String userInstrumentId, String userId) {
+        User user = get(userId);
+        if (!user.getInstruments().contains(userInstrumentId)) {
+            throw new ApplicationException(ErrorCode.USER_DOES_NOT_HAVE_INSTRUMENT);
+        }
+
+        user.getInstruments().remove(userInstrumentId);
+        userManagementRepository.save(user);
+        userInstrumentService.delete(userInstrumentId);
     }
 
     @Override
