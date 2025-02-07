@@ -12,5 +12,9 @@ import lombok.NoArgsConstructor;
 public class UnfollowUserForm {
     @NotBlank
     @Size(min = 36, max = 36)
-    private String followId;
+    private String followerId;
+
+    @NotBlank
+    @Size(min = 36, max = 36)
+    private String followedId;
 }

@@ -14,7 +14,7 @@ public interface InteractionManagementService {
 
     // Friendship
     void sendFriendRequest(@Valid SendFriendRequestForm form);
-    void respondToFriendRequest(@Valid RespondToFriendRequestForm form);
+    void respondToFriendRequest(@Valid RespondToFriendRequestForm form, String userId);
     List<Friendship> getFriends(String userId);
     List<Friendship> getPendingFriendRequests(String userId);
     void removeFriendship(String friendshipId, String userId);

@@ -12,5 +12,9 @@ import lombok.NoArgsConstructor;
 public class UnblockUserForm {
     @NotBlank
     @Size(min = 36, max = 36)
-    private String blockId;
+    private String blockerId;
+
+    @NotBlank
+    @Size(min = 36, max = 36)
+    private String blockedId;
 }

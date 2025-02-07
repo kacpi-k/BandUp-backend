@@ -16,6 +16,7 @@ public interface InteractionManagementRepository {
     void deleteFriendship(String friendshipId);
     Optional<Friendship> findFriendshipByUser(String requesterId, String addresseeId);
     List<Friendship> findFriendshipsByUser(String userId);
+    boolean existsFriendship(String requesterId, String addresseeId);
 
     // Follow
     void saveFollow(Follow follow);
@@ -29,4 +30,5 @@ public interface InteractionManagementRepository {
     void deleteBlock(String blockerId, String blockedId);
     boolean isBlocked(String blockerId, String blockedId);
     List<Block> findBlocksByUser(String userId);
+    boolean existsBlock(String blockerId, String blockedId);
 }
