@@ -29,7 +29,8 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND("Comment not found"),
     POST_ALREADY_LIKED("Post already liked"),
     POST_NOT_LIKED("Post not liked"),
-    UNKNOWN_ERROR("Unknown error");
+    UNKNOWN_ERROR("Unknown error"),
+    UNSUPPORTED_OPERATOR("Unsupported operator"),;
 
     ErrorCode(String message) {
         this.message = message;
