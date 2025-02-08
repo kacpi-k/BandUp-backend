@@ -3,6 +3,7 @@ package dev.kkoncki.bandup.interaction.management;
 import dev.kkoncki.bandup.commons.LoggedUser;
 import dev.kkoncki.bandup.interaction.management.forms.*;
 import dev.kkoncki.bandup.interaction.management.service.InteractionManagementService;
+import dev.kkoncki.bandup.user.management.User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +24,8 @@ public class InteractionManagementController {
 
     @PostMapping("/friend/request")
     public void sendFriendRequest(@RequestBody SendFriendRequestForm form) {
-        interactionManagementService.sendFriendRequest(form); // TODO rethink if requesterId should be passed in the form or by the logged user
+        form.setRequesterId(loggedUser.getUserId());
+        interactionManagementService.sendFriendRequest(form);
     }
 
     @PostMapping("/friend/respond")
@@ -50,12 +52,14 @@ public class InteractionManagementController {
 
     @PostMapping("/follow")
     public void followUser(@RequestBody FollowUserForm form) {
-        interactionManagementService.followUser(form); // TODO same as sendFriendRequest
+        form.setFollowerId(loggedUser.getUserId());
+        interactionManagementService.followUser(form);
     }
 
     @DeleteMapping("/follow")
     public void unfollowUser(@RequestBody UnfollowUserForm form) {
-        interactionManagementService.unfollowUser(form); // TODO same as above
+        form.setFollowerId(loggedUser.getUserId());
+        interactionManagementService.unfollowUser(form);
     }
 
     @GetMapping("/followers")
@@ -72,16 +76,25 @@ public class InteractionManagementController {
 
     @PostMapping("/block")
     public void blockUser(@RequestBody BlockUserForm form) {
-        interactionManagementService.blockUser(form); // TODO same as above
+        form.setBlockerId(loggedUser.getUserId());
+        interactionManagementService.blockUser(form);
     }
 
     @DeleteMapping("/block")
     public void unblockUser(@RequestBody UnblockUserForm form) {
-        interactionManagementService.unblockUser(form); // TODO same as above
+        form.setBlockerId(loggedUser.getUserId());
+        interactionManagementService.unblockUser(form);
     }
 
     @GetMapping("/blocked")
     public List<Block> getBlockedUsers() {
         return interactionManagementService.getBlockedUsers(loggedUser.getUserId());
+    }
+
+    // Recommendation Endpoints
+
+    @GetMapping("/recommendations")
+    public List<User> recommendUsers() {
+        return interactionManagementService.recommendUsers(loggedUser.getUserId());
     }
 }

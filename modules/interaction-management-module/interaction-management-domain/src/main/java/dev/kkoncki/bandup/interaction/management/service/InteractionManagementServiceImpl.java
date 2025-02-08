@@ -195,11 +195,18 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
                 .count();
         score += (int) (commonGenres * 10);
 
+        long commonInstruments = currentUser.getInstruments().stream()
+                .filter(otherUser.getInstruments()::contains)
+                .count();
+        score += (int) (commonInstruments * 15);
+
         if (Objects.equals(currentUser.getCity(), otherUser.getCity())) {
             score += 30;
         } else if (Objects.equals(currentUser.getCountry(), otherUser.getCountry())) {
             score += 10;
         }
+
+        System.out.println("User: " + otherUser.getId() + " | Score: " + score);
 
         return score;
     }

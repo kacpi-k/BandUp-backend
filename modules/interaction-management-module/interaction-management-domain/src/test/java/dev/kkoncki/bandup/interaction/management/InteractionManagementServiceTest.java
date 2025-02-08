@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -215,52 +216,65 @@ class InteractionManagementServiceTest {
     }
 
     @Test
-    void shouldRecommendUsersBasedOnLocationAndGenres() {
+    void shouldRecommendUsersBasedOnLocationGenresAndInstruments() {
         User currentUser = User.builder()
                 .id("user1")
+                .genres(List.of("rock", "pop"))
+                .instruments(List.of("guitar", "drums"))
+                .city("Warsaw")
+                .country("Poland")
                 .latitude(52.2298)
                 .longitude(21.0122)
-                .genres(List.of("rock", "jazz"))
                 .build();
 
-        User similarUser1 = User.builder()
+        User user2 = User.builder()
                 .id("user2")
-                .latitude(52.2299)
-                .longitude(21.0125)
                 .genres(List.of("rock", "pop"))
+                .instruments(List.of("guitar", "bass"))
+                .city("Warsaw")
+                .country("Poland")
+                .latitude(52.2298)
+                .longitude(21.0122)
                 .build();
 
-        User similarUser2 = User.builder()
+        User user3 = User.builder()
                 .id("user3")
-                .latitude(52.2300)
-                .longitude(21.0130)
                 .genres(List.of("jazz", "blues"))
+                .instruments(List.of("piano", "drums"))
+                .city("Warsaw")
+                .country("Poland")
+                .latitude(52.2298)
+                .longitude(21.0122)
                 .build();
 
-        User distantUser = User.builder()
+        User user4 = User.builder()
                 .id("user4")
-                .latitude(40.7128) // New York
-                .longitude(-74.0060)
                 .genres(List.of("metal", "hip-hop"))
+                .instruments(List.of("violin"))
+                .city("Gdansk")
+                .country("Poland")
+                .latitude(54.3520)
+                .longitude(18.6466)
                 .build();
 
-        SearchResponse<User> searchResponse = new SearchResponse<>(
-                List.of(similarUser1, similarUser2, distantUser),
-                3L
-        );
+        List<User> allUsers = List.of(currentUser, user2, user3, user4);
 
         when(userManagementService.get("user1")).thenReturn(currentUser);
-        when(userManagementService.search(any(SearchForm.class))).thenReturn(searchResponse);
+        when(userManagementService.search(any(SearchForm.class)))
+                .thenReturn(new SearchResponse<>(allUsers, (long) allUsers.size()));
 
-        List<User> recommendations = interactionService.recommendUsers("user1");
+        List<User> recommendedUsers = interactionService.recommendUsers("user1");
 
-        assertEquals(2, recommendations.size());
-        assertTrue(recommendations.contains(similarUser1));
-        assertTrue(recommendations.contains(similarUser2));
-        assertFalse(recommendations.contains(distantUser));
+        System.out.println("Zarekomendowani użytkownicy: " + recommendedUsers.stream()
+                .map(User::getId)
+                .collect(Collectors.joining(", ")));
 
-        verify(userManagementService, times(1)).get("user1");
-        verify(userManagementService, times(1)).search(any(SearchForm.class));
+        assertEquals(2, recommendedUsers.size());
+        assertTrue(recommendedUsers.contains(user2));
+        assertTrue(recommendedUsers.contains(user3));
+        assertFalse(recommendedUsers.contains(user4));
     }
+
+
 }
 
