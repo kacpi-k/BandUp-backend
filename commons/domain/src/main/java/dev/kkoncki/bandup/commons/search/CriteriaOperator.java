@@ -7,5 +7,6 @@ public enum CriteriaOperator {
     LS,
     LSE,
     NOT_EQUALS,
-    LIKE
+    LIKE,
+    DISTANCE
 }

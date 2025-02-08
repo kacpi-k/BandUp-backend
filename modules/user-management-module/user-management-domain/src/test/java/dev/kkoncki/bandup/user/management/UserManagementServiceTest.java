@@ -16,10 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -315,6 +312,33 @@ class UserManagementServiceTest {
 
         assertNotNull(actualResponse);
         assertEquals(1, actualResponse.getItems().size());
+        verify(userManagementRepository, times(1)).search(form);
+    }
+
+    @Test
+    void shouldSearchUsersWithinRadius() {
+        SearchForm form = new SearchForm(
+                List.of(new SearchFormCriteria("location", Map.of(
+                        "latitude", 52.2298,
+                        "longitude", 21.0122,
+                        "radiusKm", 50.0
+                ), CriteriaOperator.DISTANCE)),
+                1, 10, new SearchSort("createdOn", SearchSortOrder.ASC)
+        );
+
+        List<User> users = List.of(
+                new User("id1", "John", "Doe", "john.doe@example.com", Instant.now(), false, new ArrayList<>(), "Bio", new ArrayList<>(), null, 52.23, 21.01, "Warsaw", "Poland"),
+                new User("id2", "Jane", "Smith", "jane.smith@example.com", Instant.now(), false, new ArrayList<>(), "Bio", new ArrayList<>(), null, 52.40, 21.20, "Warsaw", "Poland")
+        );
+
+        SearchResponse<User> expectedResponse = new SearchResponse<>(users, 2L);
+
+        when(userManagementRepository.search(form)).thenReturn(expectedResponse);
+
+        SearchResponse<User> actualResponse = userManagementService.search(form);
+
+        assertNotNull(actualResponse);
+        assertEquals(2, actualResponse.getItems().size());
         verify(userManagementRepository, times(1)).search(form);
     }
 }
