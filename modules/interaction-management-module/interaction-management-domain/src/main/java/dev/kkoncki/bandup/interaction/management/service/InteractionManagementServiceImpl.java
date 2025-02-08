@@ -76,7 +76,7 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
     public void removeFriendship(String friendshipId, String userId) {
         Friendship friendship = getFriendshipOrThrow(friendshipId, userId);
 
-        if(!friendship.getRequesterId().equals(userId) || !friendship.getAddresseeId().equals(userId)) {
+        if(!friendship.getRequesterId().equals(userId) && !friendship.getAddresseeId().equals(userId)) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED);
         }
 
