@@ -140,7 +140,7 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
 
     @Override
     public void unblockUser(UnblockUserForm form) {
-        if (!repository.isBlocked(form.getBlockerId(), form.getBlockedId())) {
+        if (!repository.existsBlock(form.getBlockerId(), form.getBlockedId())) {
             throw new ApplicationException(ErrorCode.USER_NOT_BLOCKED);
         }
 

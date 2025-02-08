@@ -28,7 +28,6 @@ public interface InteractionManagementRepository {
     // Block
     void saveBlock(Block block);
     void deleteBlock(String blockerId, String blockedId);
-    boolean isBlocked(String blockerId, String blockedId);
     List<Block> findBlocksByUser(String userId);
     boolean existsBlock(String blockerId, String blockedId);
 }
