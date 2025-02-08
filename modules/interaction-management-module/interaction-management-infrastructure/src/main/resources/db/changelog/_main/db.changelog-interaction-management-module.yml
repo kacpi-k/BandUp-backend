@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+        file: classpath:db/changelog/interaction-management/create-friendship-table.xml
+  - include:
+        file: classpath:db/changelog/interaction-management/create-follow-table.xml
+  - include:
+        file: classpath:db/changelog/interaction-management/create-block-table.xml

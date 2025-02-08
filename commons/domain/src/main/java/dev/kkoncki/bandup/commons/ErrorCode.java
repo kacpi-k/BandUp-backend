@@ -30,7 +30,13 @@ public enum ErrorCode {
     POST_ALREADY_LIKED("Post already liked"),
     POST_NOT_LIKED("Post not liked"),
     UNKNOWN_ERROR("Unknown error"),
-    UNSUPPORTED_OPERATOR("Unsupported operator"),;
+    UNSUPPORTED_OPERATOR("Unsupported operator"),
+    FRIENDSHIP_ALREADY_EXISTS("Friendship already exists"),
+    FRIENDSHIP_NOT_FOUND("Friendship not found"),
+    ALREADY_FOLLOWING("Already following"),
+    NOT_FOLLOWING("Not following"),
+    USER_ALREADY_BLOCKED("User is already blocked"),
+    USER_NOT_BLOCKED("User is not blocked"),;
 
     ErrorCode(String message) {
         this.message = message;

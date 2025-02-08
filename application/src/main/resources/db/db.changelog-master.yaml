@@ -13,3 +13,5 @@ databaseChangeLog:
       file: classpath:db/changelog/_main/db.changelog-chat-module.yml
   - include:
       file: classpath:db/changelog/_main/db.changelog-post-management-module.yml
+  - include:
+      file: classpath:db/changelog/_main/db.changelog-interaction-management-module.yml
