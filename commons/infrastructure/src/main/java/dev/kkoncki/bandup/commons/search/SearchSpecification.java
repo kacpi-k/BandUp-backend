@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class SearchSpecification {
 
@@ -59,6 +60,8 @@ public class SearchSpecification {
                 return cb.lessThan(fieldPath.as(Comparable.class), (Comparable) convertToType(criteria.getValue(), fieldPath.getJavaType()));
             case LSE:
                 return cb.lessThanOrEqualTo(fieldPath.as(Comparable.class), (Comparable) convertToType(criteria.getValue(), fieldPath.getJavaType()));
+            case DISTANCE:
+                return buildDistancePredicate(cb, fieldPath, criteria);
             default:
                 throw new ApplicationException(ErrorCode.UNSUPPORTED_OPERATOR, "Unsupported operator: " + criteria.getOperator());
         }
@@ -92,5 +95,26 @@ public class SearchSpecification {
                     ? Sort.by(searchSort.getBy()).ascending()
                     : Sort.by(searchSort.getBy()).descending();
         }
+    }
+
+    static Predicate buildDistancePredicate(CriteriaBuilder cb, Path<?> fieldPath, SearchFormCriteria criteria) {
+        if (!criteria.getFieldName().equals("location")) {
+            throw new ApplicationException(ErrorCode.INVALID_CRITERIA, "DISTANCE operator is only applicable to location fields.");
+        }
+
+        Map<String, Object> locationParams = (Map<String, Object>) criteria.getValue();
+        Double targetLatitude = (Double) locationParams.get("latitude");
+        Double targetLongitude = (Double) locationParams.get("longitude");
+        Double radiusKm = (Double) locationParams.get("radiusKm");
+
+        if (targetLatitude == null || targetLongitude == null || radiusKm == null) {
+            throw new ApplicationException(ErrorCode.INVALID_CRITERIA, "Latitude, longitude and radiusKm must be provided for DISTANCE operator.");
+        }
+
+        Expression<Double> latDiff = cb.diff(fieldPath.get("latitude"), targetLatitude);
+        Expression<Double> lonDiff = cb.diff(fieldPath.get("longitude"), targetLongitude);
+        Expression<Double> distance = cb.sqrt(cb.sum(cb.prod(latDiff, latDiff), cb.prod(lonDiff, lonDiff)));
+
+        return cb.lessThanOrEqualTo(distance, radiusKm);
     }
 }

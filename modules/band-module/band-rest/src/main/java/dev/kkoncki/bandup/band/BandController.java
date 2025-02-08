@@ -1,10 +1,11 @@
 package dev.kkoncki.bandup.band;
 
-import dev.kkoncki.bandup.band.forms.AddBandMemberForm;
 import dev.kkoncki.bandup.band.forms.CreateBandForm;
 import dev.kkoncki.bandup.band.forms.UpdateBandForm;
 import dev.kkoncki.bandup.band.service.BandService;
 import dev.kkoncki.bandup.commons.LoggedUser;
+import dev.kkoncki.bandup.commons.search.SearchForm;
+import dev.kkoncki.bandup.commons.search.SearchResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,5 +45,10 @@ public class BandController {
     @GetMapping
     public List<Band> getAllBands() {
         return bandService.getAllBands();
+    }
+
+    @PostMapping("/search")
+    SearchResponse<Band> search(@RequestBody SearchForm form) {
+        return bandService.search(form);
     }
 }

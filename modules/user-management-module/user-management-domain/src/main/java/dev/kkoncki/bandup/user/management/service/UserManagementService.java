@@ -1,5 +1,7 @@
 package dev.kkoncki.bandup.user.management.service;
 
+import dev.kkoncki.bandup.commons.search.SearchForm;
+import dev.kkoncki.bandup.commons.search.SearchResponse;
 import dev.kkoncki.bandup.user.management.User;
 import dev.kkoncki.bandup.user.management.forms.CreateUserForm;
 import dev.kkoncki.bandup.user.management.forms.UpdateUserLocationForm;
@@ -18,4 +20,5 @@ public interface UserManagementService {
     void updateUserLocation(String userId, @Valid UpdateUserLocationForm form);
     void updateBio(String userId, String bio);
     void updateImageUrl(String userId, String imageUrl);
+    SearchResponse<User> search(SearchForm form);
 }

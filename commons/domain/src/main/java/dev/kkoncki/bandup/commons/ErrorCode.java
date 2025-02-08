@@ -36,7 +36,8 @@ public enum ErrorCode {
     ALREADY_FOLLOWING("Already following"),
     NOT_FOLLOWING("Not following"),
     USER_ALREADY_BLOCKED("User is already blocked"),
-    USER_NOT_BLOCKED("User is not blocked"),;
+    USER_NOT_BLOCKED("User is not blocked"),
+    INVALID_CRITERIA("Invalid criteria"),;
 
     ErrorCode(String message) {
         this.message = message;

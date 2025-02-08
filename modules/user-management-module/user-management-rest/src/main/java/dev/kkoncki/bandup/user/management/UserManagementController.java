@@ -1,6 +1,8 @@
 package dev.kkoncki.bandup.user.management;
 
 import dev.kkoncki.bandup.commons.LoggedUser;
+import dev.kkoncki.bandup.commons.search.SearchForm;
+import dev.kkoncki.bandup.commons.search.SearchResponse;
 import dev.kkoncki.bandup.user.management.forms.CreateUserForm;
 import dev.kkoncki.bandup.user.management.forms.UpdateUserLocationForm;
 import dev.kkoncki.bandup.user.management.service.UserManagementService;
@@ -56,5 +58,10 @@ public class UserManagementController {
     @PutMapping("/location")
     public void updateUserLocation(@RequestBody UpdateUserLocationForm form) {
         userManagementService.updateUserLocation(loggedUser.getUserId(), form);
+    }
+
+    @PostMapping("/search")
+    public SearchResponse<User> search(@RequestBody SearchForm form) {
+        return userManagementService.search(form);
     }
 }
