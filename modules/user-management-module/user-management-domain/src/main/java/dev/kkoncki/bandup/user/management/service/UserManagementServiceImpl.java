@@ -2,6 +2,8 @@ package dev.kkoncki.bandup.user.management.service;
 
 import dev.kkoncki.bandup.commons.ApplicationException;
 import dev.kkoncki.bandup.commons.ErrorCode;
+import dev.kkoncki.bandup.commons.search.SearchForm;
+import dev.kkoncki.bandup.commons.search.SearchResponse;
 import dev.kkoncki.bandup.user.management.User;
 import dev.kkoncki.bandup.user.management.forms.CreateUserForm;
 import dev.kkoncki.bandup.user.management.forms.UpdateUserLocationForm;
@@ -126,5 +128,10 @@ public class UserManagementServiceImpl implements UserManagementService {
         User user = get(userId);
         user.setImageUrl(imageUrl);
         userManagementRepository.save(user);
+    }
+
+    @Override
+    public SearchResponse<User> search(SearchForm form) {
+        return userManagementRepository.search(form);
     }
 }

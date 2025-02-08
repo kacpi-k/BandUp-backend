@@ -2,6 +2,7 @@ package dev.kkoncki.bandup.user.management;
 
 import dev.kkoncki.bandup.commons.ApplicationException;
 import dev.kkoncki.bandup.commons.ErrorCode;
+import dev.kkoncki.bandup.commons.search.*;
 import dev.kkoncki.bandup.user.management.forms.CreateUserForm;
 import dev.kkoncki.bandup.user.management.forms.UpdateUserLocationForm;
 import dev.kkoncki.bandup.user.management.instrument.user.instrument.service.UserInstrumentService;
@@ -16,6 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -226,6 +229,93 @@ class UserManagementServiceTest {
         userManagementService.addOrRemoveGenre("rock", "user-123");
 
         assertFalse(user.getGenres().contains("rock"));
+    }
+
+    @Test
+    void shouldSearchUsersByCriteria() {
+        SearchForm form = new SearchForm(
+                List.of(new SearchFormCriteria("firstName", "John", CriteriaOperator.EQUALS)),
+                1, 10, new SearchSort("firstName", SearchSortOrder.ASC)
+        );
+
+        List<User> users = List.of(
+                new User("id1", "John", "Doe", "john.doe@example.com", Instant.now(), false, new ArrayList<>(), "Bio", new ArrayList<>(), null, null, null, null, null)
+        );
+
+        SearchResponse<User> expectedResponse = new SearchResponse<>(users, 1L);
+
+        when(userManagementRepository.search(form)).thenReturn(expectedResponse);
+
+        SearchResponse<User> actualResponse = userManagementService.search(form);
+
+        assertNotNull(actualResponse);
+        assertEquals(1, actualResponse.getItems().size());
+        assertEquals("John", actualResponse.getItems().get(0).getFirstName());
+        verify(userManagementRepository, times(1)).search(form);
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenNoUsersMatchCriteria() {
+        SearchForm form = new SearchForm(
+                List.of(new SearchFormCriteria("firstName", "NonExistingName", CriteriaOperator.EQUALS)),
+                1, 10, new SearchSort("firstName", SearchSortOrder.ASC)
+        );
+
+        SearchResponse<User> expectedResponse = new SearchResponse<>(Collections.emptyList(), 0L);
+
+        when(userManagementRepository.search(form)).thenReturn(expectedResponse);
+
+        SearchResponse<User> actualResponse = userManagementService.search(form);
+
+        assertNotNull(actualResponse);
+        assertEquals(0, actualResponse.getItems().size());
+        assertEquals(0L, actualResponse.getTotal());
+        verify(userManagementRepository, times(1)).search(form);
+    }
+
+    @Test
+    void shouldSearchUsersWithLikeOperator() {
+        SearchForm form = new SearchForm(
+                List.of(new SearchFormCriteria("firstName", "Jo", CriteriaOperator.LIKE)),
+                1, 10, new SearchSort("firstName", SearchSortOrder.ASC)
+        );
+
+        List<User> users = List.of(
+                new User("id1", "John", "Doe", "john.doe@example.com", Instant.now(), false, new ArrayList<>(), "Bio", new ArrayList<>(), null, null, null, null, null),
+                new User("id2", "Johnny", "Bravo", "johnny@example.com", Instant.now(), false, new ArrayList<>(), "Bio", new ArrayList<>(), null, null, null, null, null)
+        );
+
+        SearchResponse<User> expectedResponse = new SearchResponse<>(users, 2L);
+
+        when(userManagementRepository.search(form)).thenReturn(expectedResponse);
+
+        SearchResponse<User> actualResponse = userManagementService.search(form);
+
+        assertNotNull(actualResponse);
+        assertEquals(2, actualResponse.getItems().size());
+        verify(userManagementRepository, times(1)).search(form);
+    }
+
+    @Test
+    void shouldSearchUsersWithGreaterThanOperator() {
+        SearchForm form = new SearchForm(
+                List.of(new SearchFormCriteria("createdOn", Instant.now().minusSeconds(3600).toString(), CriteriaOperator.GR)),
+                1, 10, new SearchSort("createdOn", SearchSortOrder.ASC)
+        );
+
+        List<User> users = List.of(
+                new User("id1", "John", "Doe", "john.doe@example.com", Instant.now(), false, new ArrayList<>(), "Bio", new ArrayList<>(), null, null, null, null, null)
+        );
+
+        SearchResponse<User> expectedResponse = new SearchResponse<>(users, 1L);
+
+        when(userManagementRepository.search(form)).thenReturn(expectedResponse);
+
+        SearchResponse<User> actualResponse = userManagementService.search(form);
+
+        assertNotNull(actualResponse);
+        assertEquals(1, actualResponse.getItems().size());
+        verify(userManagementRepository, times(1)).search(form);
     }
 }
 

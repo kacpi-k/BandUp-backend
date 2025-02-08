@@ -6,6 +6,8 @@ import dev.kkoncki.bandup.band.forms.AddBandMemberForm;
 import dev.kkoncki.bandup.band.forms.CreateBandForm;
 import dev.kkoncki.bandup.band.forms.UpdateBandForm;
 import dev.kkoncki.bandup.band.repository.BandRepository;
+import dev.kkoncki.bandup.commons.search.SearchForm;
+import dev.kkoncki.bandup.commons.search.SearchResponse;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -85,5 +87,10 @@ public class BandServiceImpl implements BandService {
     @Override
     public List<Band> getAllBands() {
         return bandRepository.findAll();
+    }
+
+    @Override
+    public SearchResponse<Band> search(SearchForm form) {
+        return bandRepository.search(form);
     }
 }

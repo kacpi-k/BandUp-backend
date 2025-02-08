@@ -9,10 +9,16 @@ import dev.kkoncki.bandup.commons.genre.Genre;
 import dev.kkoncki.bandup.commons.genre.GenreEntity;
 import dev.kkoncki.bandup.commons.genre.GenreMapper;
 import dev.kkoncki.bandup.commons.genre.repository.GenreRepository;
+import dev.kkoncki.bandup.commons.search.SearchForm;
+import dev.kkoncki.bandup.commons.search.SearchResponse;
+import dev.kkoncki.bandup.commons.search.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class BandRepositoryAdapter implements BandRepository {
@@ -60,5 +66,17 @@ public class BandRepositoryAdapter implements BandRepository {
         return jpaBandRepository.findAll().stream()
                 .map(BandMapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public SearchResponse<Band> search(SearchForm form) {
+        Specification<BandEntity> specification = SearchSpecification.buildSpecification(form.getCriteria());
+        Page<BandEntity> bandPage = jpaBandRepository.findAll(specification, SearchSpecification.getPageRequest(form));
+        return SearchResponse.<Band>builder()
+                .items(bandPage.getContent().stream()
+                        .map(BandMapper::toDomain)
+                        .collect(Collectors.toList()))
+                .total(bandPage.getTotalElements())
+                .build();
     }
 }

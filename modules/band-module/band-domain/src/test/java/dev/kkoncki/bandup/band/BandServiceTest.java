@@ -7,6 +7,7 @@ import dev.kkoncki.bandup.band.repository.BandRepository;
 import dev.kkoncki.bandup.band.service.BandHelperService;
 import dev.kkoncki.bandup.band.service.BandMemberService;
 import dev.kkoncki.bandup.band.service.BandServiceImpl;
+import dev.kkoncki.bandup.commons.search.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +19,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -41,10 +42,22 @@ class BandServiceTest {
     private CreateBandForm createBandForm;
     private UpdateBandForm updateBandForm;
 
+    private Band band1;
+    private Band band2;
+    private SearchForm searchForm;
+
     @BeforeEach
     void setUp() {
         createBandForm = new CreateBandForm("Test Band", "A great band", List.of("rock", "pop"));
         updateBandForm = new UpdateBandForm("band-id", "Updated Band", "An even better band", List.of("jazz"));
+
+        band1 = new Band("band-123", "Rock Legends", "A legendary rock band", Instant.now(), new ArrayList<>(), List.of("rock", "classic"));
+        band2 = new Band("band-456", "Jazz Masters", "Smooth jazz and blues", Instant.now(), new ArrayList<>(), List.of("jazz", "blues"));
+
+        searchForm = new SearchForm(
+                List.of(new SearchFormCriteria("name", "Rock", CriteriaOperator.LIKE)),
+                1, 10, new SearchSort("createdOn", SearchSortOrder.ASC)
+        );
     }
 
     @Test
@@ -89,6 +102,57 @@ class BandServiceTest {
         verify(bandHelperService, times(1)).getBandOrThrow("band-id");
         verify(bandMemberService, times(1)).getAllMembersByBandId("band-id");
         verify(bandRepository, times(1)).delete("band-id");
+    }
+
+    @Test
+    void shouldSearchBandsSuccessfully() {
+        List<Band> bands = List.of(band1);
+        SearchResponse<Band> expectedResponse = new SearchResponse<>(bands, 1L);
+
+        when(bandRepository.search(searchForm)).thenReturn(expectedResponse);
+
+        SearchResponse<Band> result = bandService.search(searchForm);
+
+        assertNotNull(result);
+        assertEquals(1, result.getItems().size());
+        assertEquals("Rock Legends", result.getItems().get(0).getName());
+
+        verify(bandRepository, times(1)).search(searchForm);
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenNoBandsFound() {
+        SearchResponse<Band> expectedResponse = new SearchResponse<>(List.of(), 0L);
+
+        when(bandRepository.search(searchForm)).thenReturn(expectedResponse);
+
+        SearchResponse<Band> result = bandService.search(searchForm);
+
+        assertNotNull(result);
+        assertTrue(result.getItems().isEmpty());
+
+        verify(bandRepository, times(1)).search(searchForm);
+    }
+
+    @Test
+    void shouldSearchBandsByGenre() {
+        SearchForm genreSearchForm = new SearchForm(
+                List.of(new SearchFormCriteria("genres", "jazz", CriteriaOperator.LIKE)),
+                1, 10, new SearchSort("createdOn", SearchSortOrder.ASC)
+        );
+
+        List<Band> bands = List.of(band2);
+        SearchResponse<Band> expectedResponse = new SearchResponse<>(bands, 1L);
+
+        when(bandRepository.search(genreSearchForm)).thenReturn(expectedResponse);
+
+        SearchResponse<Band> result = bandService.search(genreSearchForm);
+
+        assertNotNull(result);
+        assertEquals(1, result.getItems().size());
+        assertEquals("Jazz Masters", result.getItems().get(0).getName());
+
+        verify(bandRepository, times(1)).search(genreSearchForm);
     }
 }
 
