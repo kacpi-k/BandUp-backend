@@ -1,9 +1,13 @@
 package dev.kkoncki.bandup.interaction.management;
 
 import dev.kkoncki.bandup.commons.ApplicationException;
+import dev.kkoncki.bandup.commons.search.SearchForm;
+import dev.kkoncki.bandup.commons.search.SearchResponse;
 import dev.kkoncki.bandup.interaction.management.forms.*;
 import dev.kkoncki.bandup.interaction.management.repository.InteractionManagementRepository;
 import dev.kkoncki.bandup.interaction.management.service.InteractionManagementServiceImpl;
+import dev.kkoncki.bandup.user.management.User;
+import dev.kkoncki.bandup.user.management.service.UserManagementService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,9 +18,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,6 +28,9 @@ class InteractionManagementServiceTest {
 
     @Mock
     private InteractionManagementRepository repository;
+
+    @Mock
+    private UserManagementService userManagementService;
 
     @InjectMocks
     private InteractionManagementServiceImpl interactionService;
@@ -207,5 +214,67 @@ class InteractionManagementServiceTest {
 
         assertEquals(1, result.size());
     }
+
+    @Test
+    void shouldRecommendUsersBasedOnLocationGenresAndInstruments() {
+        User currentUser = User.builder()
+                .id("user1")
+                .genres(List.of("rock", "pop"))
+                .instruments(List.of("guitar", "drums"))
+                .city("Warsaw")
+                .country("Poland")
+                .latitude(52.2298)
+                .longitude(21.0122)
+                .build();
+
+        User user2 = User.builder()
+                .id("user2")
+                .genres(List.of("rock", "pop"))
+                .instruments(List.of("guitar", "bass"))
+                .city("Warsaw")
+                .country("Poland")
+                .latitude(52.2298)
+                .longitude(21.0122)
+                .build();
+
+        User user3 = User.builder()
+                .id("user3")
+                .genres(List.of("jazz", "blues"))
+                .instruments(List.of("piano", "drums"))
+                .city("Warsaw")
+                .country("Poland")
+                .latitude(52.2298)
+                .longitude(21.0122)
+                .build();
+
+        User user4 = User.builder()
+                .id("user4")
+                .genres(List.of("metal", "hip-hop"))
+                .instruments(List.of("violin"))
+                .city("Gdansk")
+                .country("Poland")
+                .latitude(54.3520)
+                .longitude(18.6466)
+                .build();
+
+        List<User> allUsers = List.of(currentUser, user2, user3, user4);
+
+        when(userManagementService.get("user1")).thenReturn(currentUser);
+        when(userManagementService.search(any(SearchForm.class)))
+                .thenReturn(new SearchResponse<>(allUsers, (long) allUsers.size()));
+
+        List<User> recommendedUsers = interactionService.recommendUsers("user1");
+
+        System.out.println("Zarekomendowani użytkownicy: " + recommendedUsers.stream()
+                .map(User::getId)
+                .collect(Collectors.joining(", ")));
+
+        assertEquals(2, recommendedUsers.size());
+        assertTrue(recommendedUsers.contains(user2));
+        assertTrue(recommendedUsers.contains(user3));
+        assertFalse(recommendedUsers.contains(user4));
+    }
+
+
 }
 

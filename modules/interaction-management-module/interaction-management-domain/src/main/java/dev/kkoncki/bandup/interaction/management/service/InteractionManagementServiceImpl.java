@@ -2,25 +2,29 @@ package dev.kkoncki.bandup.interaction.management.service;
 
 import dev.kkoncki.bandup.commons.ApplicationException;
 import dev.kkoncki.bandup.commons.ErrorCode;
+import dev.kkoncki.bandup.commons.search.SearchForm;
 import dev.kkoncki.bandup.interaction.management.Block;
 import dev.kkoncki.bandup.interaction.management.Follow;
 import dev.kkoncki.bandup.interaction.management.Friendship;
 import dev.kkoncki.bandup.interaction.management.FriendshipStatus;
 import dev.kkoncki.bandup.interaction.management.forms.*;
 import dev.kkoncki.bandup.interaction.management.repository.InteractionManagementRepository;
+import dev.kkoncki.bandup.user.management.User;
+import dev.kkoncki.bandup.user.management.service.UserManagementService;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class InteractionManagementServiceImpl implements InteractionManagementService {
 
     private final InteractionManagementRepository repository;
+    private final UserManagementService userManagementService;
 
-    public InteractionManagementServiceImpl(InteractionManagementRepository repository) {
+    public InteractionManagementServiceImpl(InteractionManagementRepository repository, UserManagementService userManagementService) {
         this.repository = repository;
+        this.userManagementService = userManagementService;
     }
 
     private Friendship getFriendshipOrThrow(String friendshipId, String userId) {
@@ -150,5 +154,87 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
     @Override
     public List<Block> getBlockedUsers(String userId) {
         return repository.findBlocksByUser(userId);
+    }
+
+    // Recommendation
+
+    @Override
+    public List<User> recommendUsers(String userId) {
+        User currentUser = userManagementService.get(userId);
+
+        SearchForm searchForm = new SearchForm();
+        searchForm.setPage(1);
+        searchForm.setSize(100);
+        List<User> allUsers = userManagementService.search(searchForm).getItems();
+
+        List<String> friends = repository.findFriendshipsByUser(userId).stream()
+                .map(friendship -> friendship.getRequesterId().equals(userId) ? friendship.getAddresseeId() : friendship.getRequesterId())
+                .toList();
+
+        List<String> blockedUsers = repository.findBlocksByUser(userId).stream()
+                .map(Block::getBlockedId)
+                .toList();
+
+        return allUsers.stream()
+                .filter(user -> !user.getId().equals(userId)) // exclude ourselves
+                .filter(user -> !friends.contains(user.getId())) // exclude friends
+                .filter(user -> !blockedUsers.contains(user.getId())) // exclude blocked users
+                .filter(user -> isWithinMaxDistance(currentUser, user, 100)) // filter by distance
+                .map(user -> new AbstractMap.SimpleEntry<>(user, calculateMatchScore(currentUser, user)))
+                .sorted((entry1, entry2) -> Integer.compare(entry2.getValue(), entry1.getValue()))
+                .limit(10)
+                .map(AbstractMap.SimpleEntry::getKey)
+                .toList();
+    }
+
+    private int calculateMatchScore(User currentUser, User otherUser) {
+        int score = 0;
+
+        long commonGenres = currentUser.getGenres().stream()
+                .filter(otherUser.getGenres()::contains)
+                .count();
+        score += (int) (commonGenres * 10);
+
+        long commonInstruments = currentUser.getInstruments().stream()
+                .filter(otherUser.getInstruments()::contains)
+                .count();
+        score += (int) (commonInstruments * 15);
+
+        if (Objects.equals(currentUser.getCity(), otherUser.getCity())) {
+            score += 30;
+        } else if (Objects.equals(currentUser.getCountry(), otherUser.getCountry())) {
+            score += 10;
+        }
+
+        System.out.println("User: " + otherUser.getId() + " | Score: " + score);
+
+        return score;
+    }
+
+    private boolean isWithinMaxDistance(User currentUser, User otherUser, double maxDistanceKm) {
+        if (currentUser.getLatitude() == null || currentUser.getLongitude() == null ||
+                otherUser.getLatitude() == null || otherUser.getLongitude() == null) {
+            return false;
+        }
+
+        double distance = haversine(
+                currentUser.getLatitude(), currentUser.getLongitude(),
+                otherUser.getLatitude(), otherUser.getLongitude()
+        );
+
+        return distance <= maxDistanceKm;
+    }
+
+    private double haversine(double lat1, double lon1, double lat2, double lon2) {
+        final int R = 6371;
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
     }
 }
