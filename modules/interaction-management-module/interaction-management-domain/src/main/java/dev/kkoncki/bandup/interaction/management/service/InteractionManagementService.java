@@ -4,6 +4,7 @@ import dev.kkoncki.bandup.interaction.management.Block;
 import dev.kkoncki.bandup.interaction.management.Follow;
 import dev.kkoncki.bandup.interaction.management.Friendship;
 import dev.kkoncki.bandup.interaction.management.forms.*;
+import dev.kkoncki.bandup.user.management.User;
 import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 
@@ -29,4 +30,7 @@ public interface InteractionManagementService {
     void blockUser(@Valid BlockUserForm form);
     void unblockUser(@Valid UnblockUserForm form);
     List<Block> getBlockedUsers(String userId);
+
+    // Recommendation
+    List<User> recommendUsers(String userId);
 }

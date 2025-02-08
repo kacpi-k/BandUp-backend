@@ -1,9 +1,13 @@
 package dev.kkoncki.bandup.interaction.management;
 
 import dev.kkoncki.bandup.commons.ApplicationException;
+import dev.kkoncki.bandup.commons.search.SearchForm;
+import dev.kkoncki.bandup.commons.search.SearchResponse;
 import dev.kkoncki.bandup.interaction.management.forms.*;
 import dev.kkoncki.bandup.interaction.management.repository.InteractionManagementRepository;
 import dev.kkoncki.bandup.interaction.management.service.InteractionManagementServiceImpl;
+import dev.kkoncki.bandup.user.management.User;
+import dev.kkoncki.bandup.user.management.service.UserManagementService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,8 +19,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,6 +27,9 @@ class InteractionManagementServiceTest {
 
     @Mock
     private InteractionManagementRepository repository;
+
+    @Mock
+    private UserManagementService userManagementService;
 
     @InjectMocks
     private InteractionManagementServiceImpl interactionService;
@@ -206,6 +212,55 @@ class InteractionManagementServiceTest {
         List<Block> result = interactionService.getBlockedUsers("user1");
 
         assertEquals(1, result.size());
+    }
+
+    @Test
+    void shouldRecommendUsersBasedOnLocationAndGenres() {
+        User currentUser = User.builder()
+                .id("user1")
+                .latitude(52.2298)
+                .longitude(21.0122)
+                .genres(List.of("rock", "jazz"))
+                .build();
+
+        User similarUser1 = User.builder()
+                .id("user2")
+                .latitude(52.2299)
+                .longitude(21.0125)
+                .genres(List.of("rock", "pop"))
+                .build();
+
+        User similarUser2 = User.builder()
+                .id("user3")
+                .latitude(52.2300)
+                .longitude(21.0130)
+                .genres(List.of("jazz", "blues"))
+                .build();
+
+        User distantUser = User.builder()
+                .id("user4")
+                .latitude(40.7128) // New York
+                .longitude(-74.0060)
+                .genres(List.of("metal", "hip-hop"))
+                .build();
+
+        SearchResponse<User> searchResponse = new SearchResponse<>(
+                List.of(similarUser1, similarUser2, distantUser),
+                3L
+        );
+
+        when(userManagementService.get("user1")).thenReturn(currentUser);
+        when(userManagementService.search(any(SearchForm.class))).thenReturn(searchResponse);
+
+        List<User> recommendations = interactionService.recommendUsers("user1");
+
+        assertEquals(2, recommendations.size());
+        assertTrue(recommendations.contains(similarUser1));
+        assertTrue(recommendations.contains(similarUser2));
+        assertFalse(recommendations.contains(distantUser));
+
+        verify(userManagementService, times(1)).get("user1");
+        verify(userManagementService, times(1)).search(any(SearchForm.class));
     }
 }
 
