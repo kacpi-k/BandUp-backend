@@ -34,6 +34,7 @@
 		<firebase-admin.version>9.1.1</firebase-admin.version>
 		<web-socket.version>3.4.1</web-socket.version>
 		<messaging.version>6.2.1</messaging.version>
+		<springdoc-openapi.version>2.6.0</springdoc-openapi.version>
 	</properties>
 
 	<dependencies>
