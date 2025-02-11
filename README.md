@@ -1,9 +1,9 @@
 # 🎸 BandUp – A Social Network for Musicians
 ## 📌 About
 **BandUp** is a social networking app designed for musicians looking to connect, collaborate,
-form bands, and share their music. <br> 
+form bands, and share their music and skills. 
 The app enables users to find musicians based on instruments, 
-music genres, and location. <br>
+music genres, and location.
 It also includes social features such as chat, posts, 
 and a system for making connections and following other users.
 
@@ -44,6 +44,7 @@ and a system for making connections and following other users.
     - REST API
     - JWT Authentication
     - Hexagonal Architecture
+    - Swagger
 - ### 📱 Frontend
     - Flutter
     - BLoC
@@ -62,8 +63,8 @@ and a system for making connections and following other users.
       cd bandup-backend
       ```
     - Configure environment variables
-        - Create a `.env` in the project's root directory (following the template provided in `.env.example`) 
-        - Create a `serviceAccountKey.json` in the project's root directory (instructions provided in `serviceAccountKey.json.example`)
+        - Create a `.env` file in the project's root directory (following the template provided in `.env.example`) 
+        - Create a `serviceAccountKey.json` file in the project's root directory (instructions provided in `serviceAccountKey.json.example`)
       <br /><br />
     - Run PosrgreSQL DB via Docker
       ```bash
