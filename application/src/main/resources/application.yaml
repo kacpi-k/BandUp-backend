@@ -37,3 +37,10 @@ logging:
       springframework:
         messaging: DEBUG
         web: DEBUG
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+  override-with-generic-response: false
