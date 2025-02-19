@@ -1,6 +1,7 @@
 package dev.kkoncki.bandup.commons;
 
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -9,7 +10,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @RestControllerAdvice
@@ -53,7 +53,7 @@ public class ApplicationControllerAdvice {
                 .build();
     }
 
-    @ResponseStatus(code = BAD_REQUEST)
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ConstraintViolationException.class)
     public ApplicationErrorResponse handleConstraintViolationException(ConstraintViolationException exception) {
         Map<String, String> errors = new HashMap<>();
@@ -68,8 +68,8 @@ public class ApplicationControllerAdvice {
 
         return ApplicationErrorResponse.builder()
                 .timestamp(Instant.now())
-                .status(INTERNAL_SERVER_ERROR.value())
-                .errorCode(ErrorCode.UNKNOWN_ERROR)
+                .status(HttpStatus.BAD_REQUEST.value())
+                .errorCode(ErrorCode.VALIDATION_ERROR)
                 .message(exception.getMessage())
                 .errors(errors)
                 .build();
