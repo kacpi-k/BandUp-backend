@@ -37,6 +37,9 @@ logging:
       springframework:
         messaging: DEBUG
         web: DEBUG
+        hibernate: DEBUG
+        springdoc: DEBUG
+        security: DEBUG
 
 springdoc:
   api-docs:
