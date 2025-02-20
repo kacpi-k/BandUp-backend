@@ -16,14 +16,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserManagementService service;
 
-
     public CustomUserDetailsService(UserManagementService service) {
         this.service = service;
     }
-
-/*    private User getOrThrow(String id) {
-        return service.get(id).orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_FOUND));
-    }*/
 
     @Override
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {

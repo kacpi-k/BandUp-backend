@@ -45,10 +45,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 JwtAuthUser userDetails = (JwtAuthUser) service.loadUserByUsername(id);
                 Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                System.out.println("=== Authentication ===");
-                System.out.println(SecurityContextHolder.getContext().getAuthentication());
-                System.out.println("=======================");
             }
         } catch (Exception e) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
