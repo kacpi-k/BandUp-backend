@@ -10,4 +10,6 @@ public interface UserManagementRepository {
     Optional<User> findById(String id);
     User save(User user);
     SearchResponse<User> search(SearchForm form);
+    void updateBio(String userId, String bio);
+    void updateImageUrl(String userId, String imageUrl);
 }

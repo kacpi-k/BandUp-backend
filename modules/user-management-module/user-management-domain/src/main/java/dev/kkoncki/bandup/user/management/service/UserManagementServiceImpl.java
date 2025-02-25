@@ -34,7 +34,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public User get(String id) {
         return getOrThrowUser(id);
     }
@@ -111,7 +111,7 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     @Override
     public void updateUserLocation(String userId, UpdateUserLocationForm form) {
-        User user = get(userId);
+        User user = getOrThrowUser(userId);
         user.setLatitude(form.getLatitude());
         user.setLongitude(form.getLongitude());
         user.setCity(form.getCity());
@@ -121,16 +121,18 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     @Override
     public void updateBio(String userId, String bio) {
-        User user = get(userId);
-        user.setBio(bio);
-        userManagementRepository.save(user);
+        if (bio == null || bio.trim().isEmpty()) {
+            throw new ApplicationException(ErrorCode.INVALID_BIO);
+        }
+        userManagementRepository.updateBio(userId, bio);
     }
 
     @Override
     public void updateImageUrl(String userId, String imageUrl) {
-        User user = get(userId);
-        user.setImageUrl(imageUrl);
-        userManagementRepository.save(user);
+        if (imageUrl == null || imageUrl.trim().isEmpty()) {
+            throw new ApplicationException(ErrorCode.INVALID_IMAGE_URL);
+        }
+        userManagementRepository.updateImageUrl(userId, imageUrl);
     }
 
     @Override

@@ -44,4 +44,14 @@ public class UserManagementRepositoryAdapter implements UserManagementRepository
                 .total(userPage.getTotalElements())
                 .build();
     }
+
+    @Override
+    public void updateBio(String userId, String bio) {
+        jpaUserManagementRepository.updateBio(userId, bio);
+    }
+
+    @Override
+    public void updateImageUrl(String userId, String imageUrl) {
+        jpaUserManagementRepository.updateImageUrl(userId, imageUrl);
+    }
 }

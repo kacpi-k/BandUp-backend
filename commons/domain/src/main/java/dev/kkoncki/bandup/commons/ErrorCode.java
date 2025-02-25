@@ -38,7 +38,9 @@ public enum ErrorCode {
     USER_ALREADY_BLOCKED("User is already blocked"),
     USER_NOT_BLOCKED("User is not blocked"),
     INVALID_CRITERIA("Invalid criteria"),
-    VALIDATION_ERROR("Validation error"),;
+    VALIDATION_ERROR("Validation error"),
+    INVALID_BIO("Invalid bio"),
+    INVALID_IMAGE_URL("Invalid image URL"),;
 
     ErrorCode(String message) {
         this.message = message;
