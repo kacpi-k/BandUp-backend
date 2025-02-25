@@ -10,6 +10,8 @@ import dev.kkoncki.bandup.user.management.forms.UpdateUserLocationForm;
 import dev.kkoncki.bandup.user.management.instrument.user.instrument.service.UserInstrumentService;
 import dev.kkoncki.bandup.user.management.repository.UserManagementRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User get(String id) {
         return getOrThrowUser(id);
     }

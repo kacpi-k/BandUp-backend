@@ -10,13 +10,9 @@ import java.util.stream.Collectors;
 public class UserMapper {
 
     public static User toDomain(UserEntity entity) {
-        System.out.println("Mapping user: " + entity.getId());
-
         List<String> instruments = entity.getInstruments().stream()
                 .map(i -> i.getInstrument().getId())
                 .collect(Collectors.toList());
-
-        System.out.println("Instruments: " + instruments);
 
         return User.builder()
                 .id(entity.getId())

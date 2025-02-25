@@ -5,6 +5,7 @@ import dev.kkoncki.bandup.commons.ErrorCode;
 import dev.kkoncki.bandup.security.JwtAuthUser;
 import dev.kkoncki.bandup.user.management.User;
 import dev.kkoncki.bandup.user.management.repository.UserManagementRepository;
+import dev.kkoncki.bandup.user.management.service.UserManagementService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,20 +14,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserManagementRepository repository;
+    private final UserManagementService service;
 
-
-    public CustomUserDetailsService(UserManagementRepository repository) {
-        this.repository = repository;
-    }
-
-    private User getOrThrow(String id) {
-        return repository.findById(id).orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_FOUND));
+    public CustomUserDetailsService(UserManagementService service) {
+        this.service = service;
     }
 
     @Override
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
-        User user = getOrThrow(id);
+        User user = service.get(id);
         return JwtAuthUser.builder()
                 .id(user.getId())
                 .locked(user.isBlocked())
