@@ -4,6 +4,7 @@ import dev.kkoncki.bandup.commons.search.SearchForm;
 import dev.kkoncki.bandup.commons.search.SearchResponse;
 import dev.kkoncki.bandup.user.management.User;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserManagementRepository {
@@ -12,4 +13,5 @@ public interface UserManagementRepository {
     SearchResponse<User> search(SearchForm form);
     void updateBio(String userId, String bio);
     void updateImageUrl(String userId, String imageUrl);
+    void updateGenres(String userId, List<String> genreIds);
 }
