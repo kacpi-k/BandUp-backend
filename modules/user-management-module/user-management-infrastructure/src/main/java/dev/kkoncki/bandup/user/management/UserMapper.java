@@ -4,6 +4,7 @@ import dev.kkoncki.bandup.commons.genre.GenreEntity;
 import dev.kkoncki.bandup.user.management.instrument.InstrumentEntity;
 import dev.kkoncki.bandup.user.management.instrument.user.instrument.UserInstrumentEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +23,9 @@ public class UserMapper {
                 .createdOn(entity.getCreatedOn())
                 .isBlocked(entity.isBlocked())
                 .bio(entity.getBio())
-                .genres(entity.getGenres().stream().map(GenreEntity::getName).collect(Collectors.toList()))
+                .genres(new ArrayList<>(entity.getGenres().stream()
+                        .map(GenreEntity::getId)
+                        .toList()))
                 .instruments(instruments)
                 .imageUrl(entity.getImageUrl())
                 .latitude(entity.getLatitude())
@@ -52,7 +55,7 @@ public class UserMapper {
             entity.setGenres(user.getGenres().stream()
                     .map(name -> {
                         GenreEntity genre = new GenreEntity();
-                        genre.setName(name);
+                        genre.setId(name);
                         return genre;
                     })
                     .toList());

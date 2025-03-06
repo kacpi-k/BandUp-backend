@@ -8,6 +8,8 @@ import dev.kkoncki.bandup.user.management.forms.UpdateUserLocationForm;
 import dev.kkoncki.bandup.user.management.service.UserManagementService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/user-management")
 public class UserManagementController {
@@ -63,5 +65,17 @@ public class UserManagementController {
     @PostMapping("/search")
     public SearchResponse<User> search(@RequestBody SearchForm form) {
         return userManagementService.search(form);
+    }
+
+    @PutMapping("/update-bio")
+    public void updateBio(@RequestBody Map<String, String> request) {
+        String bio = request.get("bio");
+        userManagementService.updateBio(loggedUser.getUserId(), bio);
+    }
+
+    @PutMapping("/update-image-url")
+    public void updateImageUrl(@RequestBody Map<String, String> request) {
+        String imageUrl = request.get("imageUrl");
+        userManagementService.updateImageUrl(loggedUser.getUserId(), imageUrl);
     }
 }

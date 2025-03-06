@@ -2,6 +2,8 @@ package dev.kkoncki.bandup.user.management.service;
 
 import dev.kkoncki.bandup.commons.ApplicationException;
 import dev.kkoncki.bandup.commons.ErrorCode;
+import dev.kkoncki.bandup.commons.genre.Genre;
+import dev.kkoncki.bandup.commons.genre.service.GenreService;
 import dev.kkoncki.bandup.commons.search.SearchForm;
 import dev.kkoncki.bandup.commons.search.SearchResponse;
 import dev.kkoncki.bandup.user.management.User;
@@ -15,16 +17,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class UserManagementServiceImpl implements UserManagementService {
 
     private final UserManagementRepository userManagementRepository;
+    private final GenreService genreService;
     private final UserInstrumentService userInstrumentService;
 
-    public UserManagementServiceImpl(UserManagementRepository userManagementRepository, UserInstrumentService userInstrumentService) {
+    public UserManagementServiceImpl(UserManagementRepository userManagementRepository, GenreService genreService, UserInstrumentService userInstrumentService) {
         this.userManagementRepository = userManagementRepository;
+        this.genreService = genreService;
         this.userInstrumentService = userInstrumentService;
     }
 
@@ -34,7 +39,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public User get(String id) {
         return getOrThrowUser(id);
     }
@@ -100,18 +105,25 @@ public class UserManagementServiceImpl implements UserManagementService {
     }
 
     @Override
+    @Transactional
     public void addOrRemoveGenre(String genreId, String userId) {
-        User user = get(userId);
-        if (user.getGenres().contains(genreId)) {
-            user.getGenres().remove(genreId);
+        User user = getOrThrowUser(userId);
+
+        List<String> updatedGenres = new ArrayList<>(user.getGenres());
+
+        if (updatedGenres.contains(genreId)) {
+            updatedGenres.remove(genreId);
         } else {
-            user.getGenres().add(genreId);
+            updatedGenres.add(genreId);
         }
+
+        userManagementRepository.updateGenres(userId, updatedGenres);
     }
+
 
     @Override
     public void updateUserLocation(String userId, UpdateUserLocationForm form) {
-        User user = get(userId);
+        User user = getOrThrowUser(userId);
         user.setLatitude(form.getLatitude());
         user.setLongitude(form.getLongitude());
         user.setCity(form.getCity());
@@ -121,16 +133,18 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     @Override
     public void updateBio(String userId, String bio) {
-        User user = get(userId);
-        user.setBio(bio);
-        userManagementRepository.save(user);
+        if (bio == null || bio.trim().isEmpty()) {
+            throw new ApplicationException(ErrorCode.INVALID_BIO);
+        }
+        userManagementRepository.updateBio(userId, bio);
     }
 
     @Override
     public void updateImageUrl(String userId, String imageUrl) {
-        User user = get(userId);
-        user.setImageUrl(imageUrl);
-        userManagementRepository.save(user);
+        if (imageUrl == null || imageUrl.trim().isEmpty()) {
+            throw new ApplicationException(ErrorCode.INVALID_IMAGE_URL);
+        }
+        userManagementRepository.updateImageUrl(userId, imageUrl);
     }
 
     @Override
