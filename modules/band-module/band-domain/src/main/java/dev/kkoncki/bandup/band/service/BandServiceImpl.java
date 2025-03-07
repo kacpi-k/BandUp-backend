@@ -55,7 +55,7 @@ public class BandServiceImpl implements BandService {
         AddBandMemberForm leaderForm = new AddBandMemberForm(savedBand.getId(), leaderId, "leader");
         bandMemberService.addMember(leaderForm);
 
-        return savedBand;
+        return get(savedBand.getId());
     }
 
     @Override
