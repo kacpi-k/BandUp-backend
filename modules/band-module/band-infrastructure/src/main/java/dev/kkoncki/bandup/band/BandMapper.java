@@ -13,7 +13,12 @@ public class BandMapper {
                 .name(entity.getName())
                 .description(entity.getDescription())
                 .createdOn(entity.getCreatedOn())
-                .genres(entity.getGenres().stream().map(GenreEntity::getId).collect(Collectors.toList()))
+                .members(entity.getMembers().stream()
+                        .map(BandMemberMapper::toDomain)
+                        .collect(Collectors.toList()))
+                .genres(entity.getGenres().stream()
+                        .map(GenreEntity::getId)
+                        .collect(Collectors.toList()))
                 .build();
     }
 
