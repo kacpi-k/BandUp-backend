@@ -10,7 +10,6 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import java.security.Principal;
 import java.time.Instant;
 
 @Slf4j
@@ -29,7 +28,7 @@ public class WebSocketChatController {
 
     @MessageMapping("/send")
     @SendTo("/topic/messages")
-    public GroupChatMessage sendMessage(SendGroupChatMessageForm form, Principal principal) {
+    public GroupChatMessage sendMessage(SendGroupChatMessageForm form) {
         String senderId = loggedUser.getUserId();
 
         chatService.saveGroupMessage(form, senderId);
@@ -46,7 +45,7 @@ public class WebSocketChatController {
     }
 
     @MessageMapping("/send/private")
-    public void sendPrivateMessage(SendPrivateChatMessageForm form, Principal principal) {
+    public void sendPrivateMessage(SendPrivateChatMessageForm form) {
         String senderId = loggedUser.getUserId();
 
         chatService.savePrivateMessage(form, senderId);
