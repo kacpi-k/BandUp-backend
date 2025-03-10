@@ -74,9 +74,10 @@ class PostManagementServiceTest {
         assertEquals(createPostForm.getUserId(), result.getUserId());
         assertEquals(createPostForm.getContent(), result.getContent());
         assertNull(result.getMediaUrl());
-        assertNull(result.getMediaType());
+        assertEquals(MediaType.TEXT, result.getMediaType());
         verify(repository, times(1)).savePost(any(Post.class));
     }
+
 
     @Test
     void shouldCreatePostWithMedia() {
@@ -158,6 +159,8 @@ class PostManagementServiceTest {
         doAnswer(invocation -> invocation.getArgument(0))
                 .when(repository).saveComment(any(Comment.class));
 
+        when(repository.updatePostInteractions("post-id", 0, 1)).thenReturn(1);
+
         Comment result = postService.addComment(addCommentForm);
 
         assertNotNull(result.getId());
@@ -166,6 +169,7 @@ class PostManagementServiceTest {
         verify(repository, times(1)).saveComment(any(Comment.class));
         verify(repository, times(1)).updatePostInteractions("post-id", 0, 1);
     }
+
 
     @Test
     void shouldDeleteComment() {
@@ -229,11 +233,14 @@ class PostManagementServiceTest {
         when(repository.findPostById("post-id")).thenReturn(Optional.of(post));
         when(repository.isPostLikedByUser("post-id", "user-id")).thenReturn(false);
 
+        when(repository.updatePostInteractions("post-id", 1, 0)).thenReturn(1);
+
         postService.likePost("post-id", "user-id");
 
         verify(repository, times(1)).savePostLike("post-id", "user-id");
         verify(repository, times(1)).updatePostInteractions("post-id", 1, 0);
     }
+
 
     @Test
     void shouldNotLikeAlreadyLikedPost() {
@@ -264,4 +271,3 @@ class PostManagementServiceTest {
         verify(repository, never()).deletePostLike(anyString(), anyString());
     }
 }
-

@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,39 +36,42 @@ class InteractionManagementServiceTest {
     @InjectMocks
     private InteractionManagementServiceImpl interactionService;
 
-    private SendFriendRequestForm sendFriendRequestForm;
     private RespondToFriendRequestForm respondToFriendRequestForm;
-    private FollowUserForm followUserForm;
-    private UnfollowUserForm unfollowUserForm;
-    private BlockUserForm blockUserForm;
-    private UnblockUserForm unblockUserForm;
+    private String requesterId;
+    private String addresseeId;
+    private String followerId;
+    private String followedId;
+    private String blockerId;
+    private String blockedId;
 
     @BeforeEach
     void setUp() {
-        sendFriendRequestForm = new SendFriendRequestForm("user1", "user2");
         respondToFriendRequestForm = new RespondToFriendRequestForm("friendship1", FriendshipStatus.ACCEPTED);
-        followUserForm = new FollowUserForm("user1", "user2");
-        unfollowUserForm = new UnfollowUserForm("user1", "user2");
-        blockUserForm = new BlockUserForm("user1", "user2");
-        unblockUserForm = new UnblockUserForm("user1", "user2");
+        requesterId = "user1";
+        addresseeId = "user2";
+        followerId = "user1";
+        followedId = "user2";
+        blockerId = "user1";
+        blockedId = "user2";
     }
 
     // Friendship Tests
 
     @Test
     void shouldSendFriendRequest() {
-        when(repository.existsFriendship("user1", "user2")).thenReturn(false);
+        when(repository.existsFriendship(requesterId, addresseeId)).thenReturn(false);
 
-        interactionService.sendFriendRequest(sendFriendRequestForm);
+        interactionService.sendFriendRequest(requesterId, addresseeId);
 
         verify(repository, times(1)).saveFriendship(any(Friendship.class));
     }
+
 
     @Test
     void shouldNotSendFriendRequestIfAlreadyExists() {
         when(repository.existsFriendship("user1", "user2")).thenReturn(true);
 
-        assertThrows(ApplicationException.class, () -> interactionService.sendFriendRequest(sendFriendRequestForm));
+        assertThrows(ApplicationException.class, () -> interactionService.sendFriendRequest(requesterId, addresseeId));
     }
 
     @Test
@@ -89,13 +93,22 @@ class InteractionManagementServiceTest {
 
     @Test
     void shouldGetFriends() {
-        List<Friendship> friendships = List.of(new Friendship("1", "user1", "user2", FriendshipStatus.ACCEPTED, Instant.now()));
-        when(repository.findFriendshipsByUser("user1")).thenReturn(friendships);
+        List<Friendship> friendships = List.of(
+                new Friendship("1", requesterId, addresseeId, FriendshipStatus.ACCEPTED, Instant.now())
+        );
+        when(repository.findFriendshipsByUser(requesterId)).thenReturn(friendships);
 
-        List<Friendship> friends = interactionService.getFriends("user1");
+        List<User> mockUsers = List.of(
+                new User(addresseeId, "John", "Doe", "email@test.pl", Instant.now(), false, new ArrayList<>(), "bio", new ArrayList<>(),"image", 52.2298, 21.0122, "Warsaw", "Poland")
+        );
+        when(userManagementService.getAllByIds(List.of(addresseeId))).thenReturn(mockUsers);
+
+        List<User> friends = interactionService.getFriends(requesterId);
 
         assertEquals(1, friends.size());
+        assertEquals("John", friends.get(0).getFirstName());
     }
+
 
     @Test
     void shouldGetPendingFriendRequests() {
@@ -123,7 +136,7 @@ class InteractionManagementServiceTest {
     void shouldFollowUser() {
         when(repository.isFollowing("user1", "user2")).thenReturn(false);
 
-        interactionService.followUser(followUserForm);
+        interactionService.followUser(followerId, followedId);
 
         verify(repository, times(1)).saveFollow(any(Follow.class));
     }
@@ -132,14 +145,14 @@ class InteractionManagementServiceTest {
     void shouldNotFollowUserIfAlreadyFollowing() {
         when(repository.isFollowing("user1", "user2")).thenReturn(true);
 
-        assertThrows(ApplicationException.class, () -> interactionService.followUser(followUserForm));
+        assertThrows(ApplicationException.class, () -> interactionService.followUser(followerId, followedId));
     }
 
     @Test
     void shouldUnfollowUser() {
         when(repository.isFollowing("user1", "user2")).thenReturn(true);
 
-        interactionService.unfollowUser(unfollowUserForm);
+        interactionService.unfollowUser(followerId, followedId);
 
         verify(repository, times(1)).deleteFollow("user1", "user2");
     }
@@ -148,28 +161,46 @@ class InteractionManagementServiceTest {
     void shouldThrowExceptionIfNotFollowing() {
         when(repository.isFollowing("user1", "user2")).thenReturn(false);
 
-        assertThrows(ApplicationException.class, () -> interactionService.unfollowUser(unfollowUserForm));
+        assertThrows(ApplicationException.class, () -> interactionService.unfollowUser(followerId, followedId));
     }
 
     @Test
     void shouldGetFollowers() {
-        List<Follow> followers = List.of(new Follow("1", "user1", "user2", Instant.now()));
-        when(repository.findFollowers("user1")).thenReturn(followers);
+        List<Follow> followers = List.of(
+                new Follow("1", followerId, followedId, Instant.now())
+        );
+        when(repository.findFollowers(followedId)).thenReturn(followers);
 
-        List<Follow> result = interactionService.getFollowers("user1");
+        List<User> mockUsers = List.of(
+                new User(followerId, "John", "Doe", "email@test.pl", Instant.now(), false, new ArrayList<>(), "bio", new ArrayList<>(),"image", 52.2298, 21.0122, "Warsaw", "Poland")
+        );
+        when(userManagementService.getAllByIds(List.of(followerId))).thenReturn(mockUsers);
+
+        List<User> result = interactionService.getFollowers(followedId);
 
         assertEquals(1, result.size());
+        assertEquals("John", result.get(0).getFirstName());
     }
+
 
     @Test
     void shouldGetFollowedUsers() {
-        List<Follow> followed = List.of(new Follow("1", "user1", "user2", Instant.now()));
-        when(repository.findFollowed("user1")).thenReturn(followed);
+        List<Follow> followed = List.of(
+                new Follow("1", followerId, followedId, Instant.now())
+        );
+        when(repository.findFollowed(followerId)).thenReturn(followed);
 
-        List<Follow> result = interactionService.getFollowedUsers("user1");
+        List<User> mockUsers = List.of(
+                new User(followedId, "John", "Doe", "email@test.pl", Instant.now(), false, new ArrayList<>(), "bio", new ArrayList<>(),"image", 52.2298, 21.0122, "Warsaw", "Poland")
+        );
+        when(userManagementService.getAllByIds(List.of(followedId))).thenReturn(mockUsers);
+
+        List<User> result = interactionService.getFollowedUsers(followerId);
 
         assertEquals(1, result.size());
+        assertEquals("John", result.get(0).getFirstName());
     }
+
 
     // Block Tests
 
@@ -177,7 +208,7 @@ class InteractionManagementServiceTest {
     void shouldBlockUser() {
         when(repository.existsBlock("user1", "user2")).thenReturn(false);
 
-        interactionService.blockUser(blockUserForm);
+        interactionService.blockUser(blockerId, blockedId);
 
         verify(repository, times(1)).saveBlock(any(Block.class));
     }
@@ -186,14 +217,14 @@ class InteractionManagementServiceTest {
     void shouldNotBlockUserIfAlreadyBlocked() {
         when(repository.existsBlock("user1", "user2")).thenReturn(true);
 
-        assertThrows(ApplicationException.class, () -> interactionService.blockUser(blockUserForm));
+        assertThrows(ApplicationException.class, () -> interactionService.blockUser(blockerId, blockedId));
     }
 
     @Test
     void shouldUnblockUser() {
         when(repository.existsBlock("user1", "user2")).thenReturn(true);
 
-        interactionService.unblockUser(unblockUserForm);
+        interactionService.unblockUser(blockerId, blockedId);
 
         verify(repository, times(1)).deleteBlock("user1", "user2");
     }
@@ -202,18 +233,27 @@ class InteractionManagementServiceTest {
     void shouldThrowExceptionIfUserNotBlocked() {
         when(repository.existsBlock("user1", "user2")).thenReturn(false);
 
-        assertThrows(ApplicationException.class, () -> interactionService.unblockUser(unblockUserForm));
+        assertThrows(ApplicationException.class, () -> interactionService.unblockUser(blockerId, blockedId));
     }
 
     @Test
     void shouldGetBlockedUsers() {
-        List<Block> blocks = List.of(new Block("1", "user1", "user2", Instant.now()));
-        when(repository.findBlocksByUser("user1")).thenReturn(blocks);
+        List<Block> blocks = List.of(
+                new Block("1", blockerId, blockedId, Instant.now())
+        );
+        when(repository.findBlocksByUser(blockerId)).thenReturn(blocks);
 
-        List<Block> result = interactionService.getBlockedUsers("user1");
+        List<User> mockUsers = List.of(
+                new User(blockedId, "John", "Doe", "email@test.pl", Instant.now(), false, new ArrayList<>(), "bio", new ArrayList<>(),"image", 52.2298, 21.0122, "Warsaw", "Poland")
+        );
+        when(userManagementService.getAllByIds(List.of(blockedId))).thenReturn(mockUsers);
+
+        List<User> result = interactionService.getBlockedUsers(blockerId);
 
         assertEquals(1, result.size());
+        assertEquals("John", result.get(0).getFirstName());
     }
+
 
     @Test
     void shouldRecommendUsersBasedOnLocationGenresAndInstruments() {
@@ -274,7 +314,4 @@ class InteractionManagementServiceTest {
         assertTrue(recommendedUsers.contains(user3));
         assertFalse(recommendedUsers.contains(user4));
     }
-
-
 }
-
