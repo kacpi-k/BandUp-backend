@@ -18,7 +18,7 @@ public interface PostManagementRepository {
     Optional<Comment> findCommentById(String commentId);
     List<Comment> findCommentsByPost(String postId);
 
-    void updatePostInteractions(String postId, int likesDelta, int commentsDelta);
+    int updatePostInteractions(String postId, int likesDelta, int commentsDelta);
     boolean isPostLikedByUser(String postId, String userId);
     void savePostLike(String postId, String userId);
     void deletePostLike(String postId, String userId);

@@ -15,7 +15,7 @@ public interface JpaPostRepository extends JpaRepository<PostEntity, String> {
 
     @Modifying
     @Query("UPDATE PostEntity p SET p.likesCount = p.likesCount + :likesDelta, p.commentsCount = p.commentsCount + :commentsDelta WHERE p.id = :postId")
-    void updatePostInteractions(@Param("postId") String postId, @Param("likesDelta") int likesDelta, @Param("commentsDelta") int commentsDelta);
+    int updatePostInteractions(@Param("postId") String postId, @Param("likesDelta") int likesDelta, @Param("commentsDelta") int commentsDelta);
 
     @Query("SELECT COUNT(pl) > 0 FROM PostLikeEntity pl WHERE pl.postId = :postId AND pl.userId = :userId")
     boolean isPostLikedByUser(@Param("postId") String postId, @Param("userId") String userId);
