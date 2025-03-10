@@ -35,15 +35,15 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
     // Friendship
 
     @Override
-    public void sendFriendRequest(SendFriendRequestForm form) {
-        if (repository.existsFriendship(form.getRequesterId(), form.getAddresseeId())) {
+    public void sendFriendRequest(String requesterId, String addresseeId) {
+        if (repository.existsFriendship(requesterId, addresseeId)) {
             throw new ApplicationException(ErrorCode.FRIENDSHIP_ALREADY_EXISTS);
         }
 
         Friendship friendship = Friendship.builder()
                 .id(UUID.randomUUID().toString())
-                .requesterId(form.getRequesterId())
-                .addresseeId(form.getAddresseeId())
+                .requesterId(requesterId)
+                .addresseeId(addresseeId)
                 .status(FriendshipStatus.PENDING)
                 .timestamp(Instant.now())
                 .build();
@@ -63,10 +63,16 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
     }
 
     @Override
-    public List<Friendship> getFriends(String userId) {
-        return repository.findFriendshipsByUser(userId).stream()
+    public List<User> getFriends(String userId) {
+        List<Friendship> friendships = repository.findFriendshipsByUser(userId).stream()
                 .filter(friendship -> friendship.getStatus() == FriendshipStatus.ACCEPTED)
                 .toList();
+
+        List<String> friendIds = friendships.stream()
+                .map(friendship -> friendship.getRequesterId().equals(userId) ? friendship.getAddresseeId() : friendship.getRequesterId())
+                .toList();
+
+        return userManagementService.getAllByIds(friendIds);
     }
 
     @Override
@@ -90,15 +96,15 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
     // Follow
 
     @Override
-    public void followUser(FollowUserForm form) {
-        if (repository.isFollowing(form.getFollowerId(), form.getFollowedId())) {
+    public void followUser(String followerId, String followedId) {
+        if (repository.isFollowing(followerId, followedId)) {
             throw new ApplicationException(ErrorCode.ALREADY_FOLLOWING);
         }
 
         Follow follow = Follow.builder()
                 .id(UUID.randomUUID().toString())
-                .followerId(form.getFollowerId())
-                .followedId(form.getFollowedId())
+                .followerId(followerId)
+                .followedId(followedId)
                 .timestamp(Instant.now())
                 .build();
 
@@ -106,36 +112,48 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
     }
 
     @Override
-    public void unfollowUser(UnfollowUserForm form) {
-        if (!repository.isFollowing(form.getFollowerId(), form.getFollowedId())) {
+    public void unfollowUser(String followerId, String followedId) {
+        if (!repository.isFollowing(followerId, followedId)) {
             throw new ApplicationException(ErrorCode.NOT_FOLLOWING);
         }
 
-        repository.deleteFollow(form.getFollowerId(), form.getFollowedId());
+        repository.deleteFollow(followerId, followedId);
     }
 
     @Override
-    public List<Follow> getFollowers(String userId) {
-        return repository.findFollowers(userId);
+    public List<User> getFollowers(String userId) {
+        List<Follow> followers = repository.findFollowers(userId);
+
+        List<String> followerIds = followers.stream()
+                .map(Follow::getFollowerId)
+                .toList();
+
+        return userManagementService.getAllByIds(followerIds);
     }
 
     @Override
-    public List<Follow> getFollowedUsers(String userId) {
-        return repository.findFollowed(userId);
+    public List<User> getFollowedUsers(String userId) {
+        List<Follow> followed = repository.findFollowed(userId);
+
+        List<String> followedIds = followed.stream()
+                .map(Follow::getFollowedId)
+                .toList();
+
+        return userManagementService.getAllByIds(followedIds);
     }
 
     // Block
 
     @Override
-    public void blockUser(BlockUserForm form) {
-        if (repository.existsBlock(form.getBlockerId(), form.getBlockedId())) {
+    public void blockUser(String blockerId, String blockedId) {
+        if (repository.existsBlock(blockerId, blockedId)) {
             throw new ApplicationException(ErrorCode.USER_ALREADY_BLOCKED);
         }
 
         Block block = Block.builder()
                 .id(UUID.randomUUID().toString())
-                .blockerId(form.getBlockerId())
-                .blockedId(form.getBlockedId())
+                .blockerId(blockerId)
+                .blockedId(blockedId)
                 .timestamp(Instant.now())
                 .build();
 
@@ -143,17 +161,23 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
     }
 
     @Override
-    public void unblockUser(UnblockUserForm form) {
-        if (!repository.existsBlock(form.getBlockerId(), form.getBlockedId())) {
+    public void unblockUser(String blockerId, String blockedId) {
+        if (!repository.existsBlock(blockerId, blockedId)) {
             throw new ApplicationException(ErrorCode.USER_NOT_BLOCKED);
         }
 
-        repository.deleteBlock(form.getBlockerId(), form.getBlockedId());
+        repository.deleteBlock(blockerId, blockedId);
     }
 
     @Override
-    public List<Block> getBlockedUsers(String userId) {
-        return repository.findBlocksByUser(userId);
+    public List<User> getBlockedUsers(String userId) {
+        List<Block> blocked = repository.findBlocksByUser(userId);
+
+        List<String> blockedIds = blocked.stream()
+                .map(Block::getBlockedId)
+                .toList();
+
+        return userManagementService.getAllByIds(blockedIds);
     }
 
     // Recommendation

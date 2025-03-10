@@ -17,7 +17,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -39,6 +38,13 @@ public class UserManagementRepositoryAdapter implements UserManagementRepository
     @Override
     public Optional<User> findById(String id) {
         return jpaUserManagementRepository.findById(id).map(UserMapper::toDomain);
+    }
+
+    @Override
+    public List<User> findAllByIds(List<String> ids) {
+        return jpaUserManagementRepository.findAllById(ids).stream()
+                .map(UserMapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override

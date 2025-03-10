@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface UserManagementRepository {
     Optional<User> findById(String id);
+    List<User> findAllByIds(List<String> ids);
     User save(User user);
     SearchResponse<User> search(SearchForm form);
     void updateBio(String userId, String bio);

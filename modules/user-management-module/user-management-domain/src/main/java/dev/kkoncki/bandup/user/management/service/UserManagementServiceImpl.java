@@ -2,8 +2,6 @@ package dev.kkoncki.bandup.user.management.service;
 
 import dev.kkoncki.bandup.commons.ApplicationException;
 import dev.kkoncki.bandup.commons.ErrorCode;
-import dev.kkoncki.bandup.commons.genre.Genre;
-import dev.kkoncki.bandup.commons.genre.service.GenreService;
 import dev.kkoncki.bandup.commons.search.SearchForm;
 import dev.kkoncki.bandup.commons.search.SearchResponse;
 import dev.kkoncki.bandup.user.management.User;
@@ -24,12 +22,10 @@ import java.util.UUID;
 public class UserManagementServiceImpl implements UserManagementService {
 
     private final UserManagementRepository userManagementRepository;
-    private final GenreService genreService;
     private final UserInstrumentService userInstrumentService;
 
-    public UserManagementServiceImpl(UserManagementRepository userManagementRepository, GenreService genreService, UserInstrumentService userInstrumentService) {
+    public UserManagementServiceImpl(UserManagementRepository userManagementRepository, UserInstrumentService userInstrumentService) {
         this.userManagementRepository = userManagementRepository;
-        this.genreService = genreService;
         this.userInstrumentService = userInstrumentService;
     }
 
@@ -42,6 +38,11 @@ public class UserManagementServiceImpl implements UserManagementService {
     @Transactional
     public User get(String id) {
         return getOrThrowUser(id);
+    }
+
+    @Override
+    public List<User> getAllByIds(List<String> ids) {
+        return userManagementRepository.findAllByIds(ids);
     }
 
     @Override

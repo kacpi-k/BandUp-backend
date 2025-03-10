@@ -22,10 +22,9 @@ public class InteractionManagementController {
 
     // Friendship Endpoints
 
-    @PostMapping("/friend/request")
-    public void sendFriendRequest(@RequestBody SendFriendRequestForm form) {
-        form.setRequesterId(loggedUser.getUserId());
-        interactionManagementService.sendFriendRequest(form);
+    @PostMapping("/friend/request/{addresseeId}")
+    public void sendFriendRequest(@PathVariable String addresseeId) {
+        interactionManagementService.sendFriendRequest(loggedUser.getUserId(), addresseeId);
     }
 
     @PostMapping("/friend/respond")
@@ -34,7 +33,7 @@ public class InteractionManagementController {
     }
 
     @GetMapping("/friends")
-    public List<Friendship> getFriends() {
+    public List<User> getFriends() {
         return interactionManagementService.getFriends(loggedUser.getUserId());
     }
 
@@ -50,44 +49,40 @@ public class InteractionManagementController {
 
     // Follow Endpoints
 
-    @PostMapping("/follow")
-    public void followUser(@RequestBody FollowUserForm form) {
-        form.setFollowerId(loggedUser.getUserId());
-        interactionManagementService.followUser(form);
+    @PostMapping("/follow/{followedId}")
+    public void followUser(@PathVariable String followedId) {
+        interactionManagementService.followUser(loggedUser.getUserId(), followedId);
     }
 
-    @DeleteMapping("/follow")
-    public void unfollowUser(@RequestBody UnfollowUserForm form) {
-        form.setFollowerId(loggedUser.getUserId());
-        interactionManagementService.unfollowUser(form);
+    @DeleteMapping("/unfollow/{followedId}")
+    public void unfollowUser(@PathVariable String followedId) {
+        interactionManagementService.unfollowUser(loggedUser.getUserId(), followedId);
     }
 
     @GetMapping("/followers")
-    public List<Follow> getFollowers() {
+    public List<User> getFollowers() {
         return interactionManagementService.getFollowers(loggedUser.getUserId());
     }
 
     @GetMapping("/followed")
-    public List<Follow> getFollowed() {
+    public List<User> getFollowed() {
         return interactionManagementService.getFollowedUsers(loggedUser.getUserId());
     }
 
     // Block Endpoints
 
-    @PostMapping("/block")
-    public void blockUser(@RequestBody BlockUserForm form) {
-        form.setBlockerId(loggedUser.getUserId());
-        interactionManagementService.blockUser(form);
+    @PostMapping("/block/{blockedId}")
+    public void blockUser(@PathVariable String blockedId) {
+        interactionManagementService.blockUser(loggedUser.getUserId(), blockedId);
     }
 
-    @DeleteMapping("/block")
-    public void unblockUser(@RequestBody UnblockUserForm form) {
-        form.setBlockerId(loggedUser.getUserId());
-        interactionManagementService.unblockUser(form);
+    @DeleteMapping("/unblock/{blockedId}")
+    public void unblockUser(@PathVariable String blockedId) {
+        interactionManagementService.unblockUser(loggedUser.getUserId(), blockedId);
     }
 
     @GetMapping("/blocked")
-    public List<Block> getBlockedUsers() {
+    public List<User> getBlockedUsers() {
         return interactionManagementService.getBlockedUsers(loggedUser.getUserId());
     }
 
