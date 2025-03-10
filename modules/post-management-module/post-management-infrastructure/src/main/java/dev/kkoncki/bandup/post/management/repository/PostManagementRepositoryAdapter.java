@@ -70,8 +70,8 @@ public class PostManagementRepositoryAdapter implements PostManagementRepository
     }
 
     @Override
-    public void updatePostInteractions(String postId, int likesDelta, int commentsDelta) {
-        jpaPostRepository.updatePostInteractions(postId, likesDelta, commentsDelta);
+    public int updatePostInteractions(String postId, int likesDelta, int commentsDelta) {
+        return jpaPostRepository.updatePostInteractions(postId, likesDelta, commentsDelta);
     }
 
     @Override

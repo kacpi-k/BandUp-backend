@@ -21,7 +21,7 @@ public class PostController {
     }
 
     @PostMapping
-    public Post createPost(CreatePostForm form) {
+    public Post createPost(@RequestBody CreatePostForm form) {
         return postManagementService.createPost(form);
     }
 

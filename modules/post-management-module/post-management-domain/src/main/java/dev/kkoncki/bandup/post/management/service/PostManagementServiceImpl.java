@@ -11,6 +11,7 @@ import dev.kkoncki.bandup.post.management.forms.AddCommentForm;
 import dev.kkoncki.bandup.post.management.forms.CreatePostForm;
 import dev.kkoncki.bandup.post.management.repository.PostManagementRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -54,9 +55,9 @@ public class PostManagementServiceImpl implements PostManagementService {
 
     @Override
     public Post createPost(CreatePostForm form) {
-        MediaType mediaType = null;
+        MediaType mediaType = MediaType.TEXT;
 
-        if (form.getMediaUrl() != null) {
+        if (!form.getMediaUrl().isEmpty()) {
             String fileId = extractFileIdFromUrl(form.getMediaUrl());
             File file = fileManagementService.get(fileId);
             mediaType = determineMediaType(file.getExtension());
@@ -99,6 +100,7 @@ public class PostManagementServiceImpl implements PostManagementService {
         return getOrThrowPost(postId);
     }
 
+    @Transactional
     @Override
     public Comment addComment(AddCommentForm form) {
         Post post = getPostById(form.getPostId());
@@ -112,7 +114,11 @@ public class PostManagementServiceImpl implements PostManagementService {
                 .build();
 
         repository.saveComment(comment);
-        repository.updatePostInteractions(post.getId(), 0, 1);
+        int updatedRows = repository.updatePostInteractions(form.getPostId(), 0, 1);
+
+        if (updatedRows == 0) {
+            throw new ApplicationException(ErrorCode.POST_NOT_UPDATED);
+        }
 
         return comment;
     }
@@ -138,6 +144,7 @@ public class PostManagementServiceImpl implements PostManagementService {
         return getOrThrowComment(commentId);
     }
 
+    @Transactional
     @Override
     public void likePost(String postId, String userId) {
         Post post = getPostById(postId);
@@ -146,7 +153,11 @@ public class PostManagementServiceImpl implements PostManagementService {
         }
 
         repository.savePostLike(postId, userId);
-        repository.updatePostInteractions(postId, 1, 0);
+        int updatedRows = repository.updatePostInteractions(postId, 1, 0);
+
+        if (updatedRows == 0) {
+            throw new ApplicationException(ErrorCode.POST_NOT_UPDATED);
+        }
     }
 
     @Override
