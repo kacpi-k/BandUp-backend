@@ -57,7 +57,7 @@ public class PostManagementServiceImpl implements PostManagementService {
     public Post createPost(CreatePostForm form) {
         MediaType mediaType = MediaType.TEXT;
 
-        if (!form.getMediaUrl().isEmpty()) {
+        if (form.getMediaUrl() != null && !form.getMediaUrl().isEmpty()) {
             String fileId = extractFileIdFromUrl(form.getMediaUrl());
             File file = fileManagementService.get(fileId);
             mediaType = determineMediaType(file.getExtension());

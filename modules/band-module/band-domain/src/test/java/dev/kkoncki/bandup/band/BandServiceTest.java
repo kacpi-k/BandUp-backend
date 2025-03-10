@@ -63,18 +63,25 @@ class BandServiceTest {
     @Test
     void shouldCreateBand() {
         Band band = new Band("band-id", "Test Band", "A great band", Instant.now(), new ArrayList<>(), List.of("rock", "pop"));
+
         when(bandRepository.save(any(Band.class))).thenReturn(band);
+
+        when(bandHelperService.getBandOrThrow(anyString())).thenReturn(band);
 
         Band result = bandService.createBand(createBandForm, "leader-id");
 
+        assertNotNull(result);
 
         assertEquals("band-id", result.getId());
         assertEquals("Test Band", result.getName());
         assertEquals("A great band", result.getDescription());
         assertEquals(List.of("rock", "pop"), result.getGenres());
+
         verify(bandMemberService, times(1)).addMember(any(AddBandMemberForm.class));
         verify(bandRepository, times(1)).save(any(Band.class));
+        verify(bandHelperService, times(1)).getBandOrThrow(anyString());
     }
+
 
     @Test
     void shouldUpdateBand() {

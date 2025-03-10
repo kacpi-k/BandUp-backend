@@ -11,6 +11,7 @@ import dev.kkoncki.bandup.user.management.service.UserManagementServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -137,23 +138,27 @@ class UserManagementServiceTest {
 
     @Test
     void shouldUpdateUserBioSuccessfully() {
-        when(userManagementRepository.findById("user-123")).thenReturn(Optional.of(user));
-
         userManagementService.updateBio("user-123", "New bio");
 
-        assertEquals("New bio", user.getBio());
-        verify(userManagementRepository, times(1)).save(user);
+        ArgumentCaptor<String> bioCaptor = ArgumentCaptor.forClass(String.class);
+        verify(userManagementRepository, times(1)).updateBio(eq("user-123"), bioCaptor.capture());
+
+        assertEquals("New bio", bioCaptor.getValue());
     }
+
+
 
     @Test
     void shouldUpdateUserImageUrlSuccessfully() {
-        when(userManagementRepository.findById("user-123")).thenReturn(Optional.of(user));
-
         userManagementService.updateImageUrl("user-123", "https://example.com/image.jpg");
 
-        assertEquals("https://example.com/image.jpg", user.getImageUrl());
-        verify(userManagementRepository, times(1)).save(user);
+        ArgumentCaptor<String> imageUrlCaptor = ArgumentCaptor.forClass(String.class);
+        verify(userManagementRepository, times(1)).updateImageUrl(eq("user-123"), imageUrlCaptor.capture());
+
+        assertEquals("https://example.com/image.jpg", imageUrlCaptor.getValue());
     }
+
+
 
     @Test
     void shouldAddUserInstrument() {
@@ -214,8 +219,12 @@ class UserManagementServiceTest {
 
         userManagementService.addOrRemoveGenre("rock", "user-123");
 
-        assertTrue(user.getGenres().contains("rock"));
+        ArgumentCaptor<List<String>> genresCaptor = ArgumentCaptor.forClass(List.class);
+        verify(userManagementRepository, times(1)).updateGenres(eq("user-123"), genresCaptor.capture());
+
+        assertTrue(genresCaptor.getValue().contains("rock"));
     }
+
 
     @Test
     void shouldRemoveGenreIfAlreadyExists() {
@@ -225,8 +234,12 @@ class UserManagementServiceTest {
 
         userManagementService.addOrRemoveGenre("rock", "user-123");
 
-        assertFalse(user.getGenres().contains("rock"));
+        ArgumentCaptor<List<String>> genresCaptor = ArgumentCaptor.forClass(List.class);
+        verify(userManagementRepository, times(1)).updateGenres(eq("user-123"), genresCaptor.capture());
+
+        assertFalse(genresCaptor.getValue().contains("rock"));
     }
+
 
     @Test
     void shouldSearchUsersByCriteria() {
@@ -342,4 +355,3 @@ class UserManagementServiceTest {
         verify(userManagementRepository, times(1)).search(form);
     }
 }
-

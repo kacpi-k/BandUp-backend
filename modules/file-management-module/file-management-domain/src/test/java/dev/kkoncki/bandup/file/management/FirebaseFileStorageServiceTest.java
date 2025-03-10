@@ -10,6 +10,7 @@ import dev.kkoncki.bandup.firebase.FirebaseProps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -54,12 +55,20 @@ class FirebaseFileStorageServiceTest {
         String contentType = "text/plain";
 
         when(bucket.create(anyString(), eq(file), eq(contentType))).thenReturn(blob);
-        when(blob.getMediaLink()).thenReturn("https://example.com/media-link");
+        when(bucket.get(anyString())).thenReturn(blob);
+        when(blob.exists()).thenReturn(true);
+
+        ArgumentCaptor<String> fileNameCaptor = ArgumentCaptor.forClass(String.class);
 
         String mediaLink = fileStorageService.uploadFile(file, userId, originalFileName, contentType);
 
+        verify(bucket).create(fileNameCaptor.capture(), eq(file), eq(contentType));
+        String generatedFileName = fileNameCaptor.getValue();
+
+        String expectedFileUrl = "https://storage.googleapis.com/" + "test-bucket/" + generatedFileName;
+
         assertNotNull(mediaLink);
-        assertEquals("https://example.com/media-link", mediaLink);
+        assertEquals(expectedFileUrl, mediaLink);
         verify(bucket, times(1)).create(anyString(), eq(file), eq(contentType));
         verify(fileManagementService, times(1)).save(any(File.class));
     }
