@@ -10,8 +10,8 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 public interface ChatService {
-    void savePrivateMessage(@Valid SendPrivateChatMessageForm form);
-    void saveGroupMessage(@Valid SendGroupChatMessageForm form);
+    void savePrivateMessage(@Valid SendPrivateChatMessageForm form, String senderId);
+    void saveGroupMessage(@Valid SendGroupChatMessageForm form, String senderId);
     Page<PrivateChatMessage> getPrivateMessages(String senderId, String receiverId, int page, int size);
     void markMessageAsRead(String messageId);
     Page<GroupChatMessage> getGroupMessages(String bandId, int page, int size);

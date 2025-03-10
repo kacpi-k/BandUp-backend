@@ -26,10 +26,10 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void savePrivateMessage(SendPrivateChatMessageForm form) {
+    public void savePrivateMessage(SendPrivateChatMessageForm form, String senderId) {
         PrivateChatMessage message = PrivateChatMessage.builder()
                 .id(UUID.randomUUID().toString())
-                .senderId(form.getSenderId())
+                .senderId(senderId)
                 .receiverId(form.getReceiverId())
                 .content(form.getContent())
                 .timestamp(Instant.now())
@@ -40,10 +40,10 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void saveGroupMessage(SendGroupChatMessageForm form) {
+    public void saveGroupMessage(SendGroupChatMessageForm form, String senderId) {
         GroupChatMessage message = GroupChatMessage.builder()
                 .id(UUID.randomUUID().toString())
-                .senderId(form.getSenderId())
+                .senderId(senderId)
                 .bandId(form.getBandId())
                 .content(form.getContent())
                 .timestamp(Instant.now())

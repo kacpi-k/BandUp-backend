@@ -4,6 +4,7 @@ import dev.kkoncki.bandup.chat.forms.SendGroupChatMessageForm;
 import dev.kkoncki.bandup.chat.forms.SendPrivateChatMessageForm;
 import dev.kkoncki.bandup.chat.repository.ChatRepository;
 import dev.kkoncki.bandup.chat.service.ChatServiceImpl;
+import dev.kkoncki.bandup.commons.LoggedUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +28,9 @@ class ChatServiceTest {
     @Mock
     private ChatRepository chatRepository;
 
+    @Mock
+    private LoggedUser loggedUser;
+
     @InjectMocks
     private ChatServiceImpl chatService;
 
@@ -35,14 +39,14 @@ class ChatServiceTest {
 
     @BeforeEach
     void setUp() {
+        lenient().when(loggedUser.getUserId()).thenReturn("sender-id");
+
         privateMessageForm = new SendPrivateChatMessageForm(
-                "sender-id",
                 "receiver-id",
                 "Hello, private chat!"
         );
 
         groupMessageForm = new SendGroupChatMessageForm(
-                "sender-id",
                 "band-id",
                 "Hello, group chat!"
         );
@@ -50,7 +54,7 @@ class ChatServiceTest {
 
     @Test
     void shouldSavePrivateMessage() {
-        chatService.savePrivateMessage(privateMessageForm);
+        chatService.savePrivateMessage(privateMessageForm, loggedUser.getUserId());
 
         verify(chatRepository, times(1)).savePrivateMessage(any(PrivateChatMessage.class));
     }
@@ -78,7 +82,7 @@ class ChatServiceTest {
 
     @Test
     void shouldSaveGroupMessage() {
-        chatService.saveGroupMessage(groupMessageForm);
+        chatService.saveGroupMessage(groupMessageForm, loggedUser.getUserId());
 
         verify(chatRepository, times(1)).saveGroupMessage(any(GroupChatMessage.class));
     }
