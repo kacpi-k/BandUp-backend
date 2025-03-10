@@ -8,9 +8,12 @@ import dev.kkoncki.bandup.user.management.forms.UpdateUserLocationForm;
 import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.List;
+
 @Validated
 public interface UserManagementService {
     User get(String id);
+    List<User> getAllByIds(List<String> ids);
     User save(@Valid CreateUserForm form);
     User block(String id);
     User unBlock(String id);

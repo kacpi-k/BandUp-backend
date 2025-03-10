@@ -1,7 +1,5 @@
 package dev.kkoncki.bandup.interaction.management.service;
 
-import dev.kkoncki.bandup.interaction.management.Block;
-import dev.kkoncki.bandup.interaction.management.Follow;
 import dev.kkoncki.bandup.interaction.management.Friendship;
 import dev.kkoncki.bandup.interaction.management.forms.*;
 import dev.kkoncki.bandup.user.management.User;
@@ -14,22 +12,22 @@ import java.util.List;
 public interface InteractionManagementService {
 
     // Friendship
-    void sendFriendRequest(@Valid SendFriendRequestForm form);
+    void sendFriendRequest(String requesterId, String addresseeId);
     void respondToFriendRequest(@Valid RespondToFriendRequestForm form, String userId);
-    List<Friendship> getFriends(String userId);
+    List<User> getFriends(String userId);
     List<Friendship> getPendingFriendRequests(String userId);
     void removeFriendship(String friendshipId, String userId);
 
     // Follow
-    void followUser(@Valid FollowUserForm form);
-    void unfollowUser(@Valid UnfollowUserForm form);
-    List<Follow> getFollowers(String userId);
-    List<Follow> getFollowedUsers(String userId);
+    void followUser(String followerId, String followedId);
+    void unfollowUser(String followerId, String followedId);
+    List<User> getFollowers(String userId);
+    List<User> getFollowedUsers(String userId);
 
     // Block
-    void blockUser(@Valid BlockUserForm form);
-    void unblockUser(@Valid UnblockUserForm form);
-    List<Block> getBlockedUsers(String userId);
+    void blockUser(String blockerId, String blockedId);
+    void unblockUser(String blockerId, String blockedId);
+    List<User> getBlockedUsers(String userId);
 
     // Recommendation
     List<User> recommendUsers(String userId);
