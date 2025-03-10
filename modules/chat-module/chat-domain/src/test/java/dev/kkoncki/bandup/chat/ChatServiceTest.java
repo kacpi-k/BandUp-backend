@@ -14,8 +14,10 @@ import org.springframework.data.domain.*;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -52,6 +54,27 @@ class ChatServiceTest {
 
         verify(chatRepository, times(1)).savePrivateMessage(any(PrivateChatMessage.class));
     }
+
+    @Test
+    void shouldMarkMessageAsRead() {
+        String messageId = "message-id";
+        PrivateChatMessage message = PrivateChatMessage.builder()
+                .id(messageId)
+                .senderId("sender-id")
+                .receiverId("receiver-id")
+                .content("Test message")
+                .timestamp(Instant.now())
+                .isRead(false)
+                .build();
+
+        when(chatRepository.findById(messageId)).thenReturn(Optional.of(message));
+
+        chatService.markMessageAsRead(messageId);
+
+        assertTrue(message.isRead());
+        verify(chatRepository, times(1)).savePrivateMessage(message);
+    }
+
 
     @Test
     void shouldSaveGroupMessage() {
@@ -101,5 +124,4 @@ class ChatServiceTest {
         assertEquals(2, result.getContent().size());
         verify(chatRepository, times(1)).findGroupMessages(bandId, pageable);
     }
-
 }
