@@ -1,19 +1,25 @@
 package dev.kkoncki.bandup.chat.repository;
 
 import dev.kkoncki.bandup.chat.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class ChatRepositoryAdapter implements ChatRepository {
 
     private final JpaPrivateChatRepository privateRepo;
     private final JpaGroupChatRepository groupRepo;
+    private final JpaPrivateChatRepository jpaPrivateChatRepository;
 
-    public ChatRepositoryAdapter(JpaPrivateChatRepository privateRepo, JpaGroupChatRepository groupRepo) {
+    public ChatRepositoryAdapter(JpaPrivateChatRepository privateRepo, JpaGroupChatRepository groupRepo, JpaPrivateChatRepository jpaPrivateChatRepository) {
         this.privateRepo = privateRepo;
         this.groupRepo = groupRepo;
+        this.jpaPrivateChatRepository = jpaPrivateChatRepository;
     }
 
 
@@ -30,16 +36,32 @@ public class ChatRepositoryAdapter implements ChatRepository {
     }
 
     @Override
-    public List<PrivateChatMessage> findPrivateMessages(String senderId, String receiverId) {
-        List<PrivateChatMessageEntity> entities = privateRepo.findPrivateMessages(senderId, receiverId);
+    public Page<PrivateChatMessage> findPrivateMessages(String senderId, String receiverId, Pageable pageable) {
+        Page<PrivateChatMessageEntity> entityPage = privateRepo.findPrivateMessages(senderId, receiverId, pageable);
 
-        return PrivateChatMessageMapper.toDomainList(entities);
+        List<PrivateChatMessage> domainMessages = entityPage.getContent()
+                .stream()
+                .map(PrivateChatMessageMapper::toDomain)
+                .toList();
+
+        return new PageImpl<>(domainMessages, pageable, entityPage.getTotalElements());
     }
 
     @Override
-    public List<GroupChatMessage> findGroupMessages(String bandId) {
-        List<GroupChatMessageEntity> entities = groupRepo.findGroupMessages(bandId);
+    public Optional<PrivateChatMessage> findById(String messageId) {
+        return jpaPrivateChatRepository.findById(messageId)
+                .map(PrivateChatMessageMapper::toDomain);
+    }
 
-        return GroupChatMessageMapper.toDomainList(entities);
+    @Override
+    public Page<GroupChatMessage> findGroupMessages(String bandId, Pageable pageable) {
+        Page<GroupChatMessageEntity> entityPage = groupRepo.findGroupMessages(bandId, pageable);
+
+        List<GroupChatMessage> domainMessages = entityPage.getContent()
+                .stream()
+                .map(GroupChatMessageMapper::toDomain)
+                .toList();
+
+        return new PageImpl<>(domainMessages, pageable, entityPage.getTotalElements());
     }
 }

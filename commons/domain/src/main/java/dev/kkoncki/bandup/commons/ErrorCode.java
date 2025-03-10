@@ -41,7 +41,8 @@ public enum ErrorCode {
     INVALID_CRITERIA("Invalid criteria"),
     VALIDATION_ERROR("Validation error"),
     INVALID_BIO("Invalid bio"),
-    INVALID_IMAGE_URL("Invalid image URL"),;
+    INVALID_IMAGE_URL("Invalid image URL"),
+    MESSAGE_NOT_FOUND("Message not found"),;
 
     ErrorCode(String message) {
         this.message = message;
