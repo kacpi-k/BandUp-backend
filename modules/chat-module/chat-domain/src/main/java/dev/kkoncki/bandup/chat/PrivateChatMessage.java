@@ -17,4 +17,5 @@ public class PrivateChatMessage {
     private String receiverId;
     private String content;
     private Instant timestamp;
+    private boolean isRead;
 }

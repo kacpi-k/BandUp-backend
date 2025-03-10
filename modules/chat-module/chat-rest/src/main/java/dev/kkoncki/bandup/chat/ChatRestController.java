@@ -2,12 +2,8 @@ package dev.kkoncki.bandup.chat;
 
 import dev.kkoncki.bandup.chat.service.ChatService;
 import dev.kkoncki.bandup.commons.LoggedUser;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -22,14 +18,26 @@ public class ChatRestController {
     }
 
     @GetMapping("/private/{receiverId}")
-    public List<PrivateChatMessage> getPrivateMessages(@PathVariable String receiverId) {
+    public Page<PrivateChatMessage> getPrivateMessages(
+            @PathVariable String receiverId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
         String senderId = loggedUser.getUserId();
+        return chatService.getPrivateMessages(senderId, receiverId, page, size);
+    }
 
-        return chatService.getPrivateMessages(senderId, receiverId);
+    @PatchMapping("/private/read/{messageId}")
+    public void markMessageAsRead(@PathVariable String messageId) {
+        chatService.markMessageAsRead(messageId);
     }
 
     @GetMapping("/group/{bandId}")
-    public List<GroupChatMessage> getGroupMessages(@PathVariable String bandId) {
-        return chatService.getGroupMessages(bandId);
+    public Page<GroupChatMessage> getGroupMessages(
+            @PathVariable String bandId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        return chatService.getGroupMessages(bandId, page, size);
     }
 }
