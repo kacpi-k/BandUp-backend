@@ -161,5 +161,22 @@ class BandServiceTest {
 
         verify(bandRepository, times(1)).search(genreSearchForm);
     }
+
+    @Test
+    void shouldReturnAllBandsByUserId() {
+        String userId = "user-123";
+        List<Band> userBands = List.of(band1, band2);
+
+        when(bandRepository.findAllByMemberUserId(userId)).thenReturn(userBands);
+
+        List<Band> result = bandService.getAllBandsByUserId(userId);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.contains(band1));
+        assertTrue(result.contains(band2));
+
+        verify(bandRepository, times(1)).findAllByMemberUserId(userId);
+    }
 }
 

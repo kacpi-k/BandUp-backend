@@ -13,4 +13,5 @@ public interface BandRepository {
     void delete(String id);
     List<Band> findAll();
     SearchResponse<Band> search(SearchForm form);
+    List<Band> findAllByMemberUserId(String userId);
 }

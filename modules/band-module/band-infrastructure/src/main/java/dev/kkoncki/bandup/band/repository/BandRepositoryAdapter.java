@@ -79,4 +79,11 @@ public class BandRepositoryAdapter implements BandRepository {
                 .total(bandPage.getTotalElements())
                 .build();
     }
+
+    @Override
+    public List<Band> findAllByMemberUserId(String userId) {
+        return jpaBandRepository.findAllByMemberUserId(userId).stream()
+                .map(BandMapper::toDomain)
+                .toList();
+    }
 }

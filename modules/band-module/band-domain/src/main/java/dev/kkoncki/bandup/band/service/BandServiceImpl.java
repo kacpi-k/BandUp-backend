@@ -93,4 +93,9 @@ public class BandServiceImpl implements BandService {
     public SearchResponse<Band> search(SearchForm form) {
         return bandRepository.search(form);
     }
+
+    @Override
+    public List<Band> getAllBandsByUserId(String userId) {
+        return bandRepository.findAllByMemberUserId(userId);
+    }
 }

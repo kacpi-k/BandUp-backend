@@ -1,8 +1,6 @@
 package dev.kkoncki.bandup.band.service;
 
 import dev.kkoncki.bandup.band.Band;
-import dev.kkoncki.bandup.band.forms.AddBandMemberForm;
-import dev.kkoncki.bandup.band.forms.UpdateBandMemberRoleForm;
 import dev.kkoncki.bandup.band.forms.CreateBandForm;
 import dev.kkoncki.bandup.band.forms.UpdateBandForm;
 import dev.kkoncki.bandup.commons.search.SearchForm;
@@ -20,4 +18,5 @@ public interface BandService {
     void deleteBand(String id);
     List<Band> getAllBands();
     SearchResponse<Band> search(SearchForm form);
+    List<Band> getAllBandsByUserId(String userId);
 }
