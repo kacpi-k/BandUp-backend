@@ -184,6 +184,7 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
 
     @Override
     public List<User> recommendUsers(String userId) {
+        int minScore = 45;
         User currentUser = userManagementService.get(userId);
 
         SearchForm searchForm = new SearchForm();
@@ -205,8 +206,9 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
                 .filter(user -> !blockedUsers.contains(user.getId())) // exclude blocked users
                 .filter(user -> isWithinMaxDistance(currentUser, user, 100)) // filter by distance
                 .map(user -> new AbstractMap.SimpleEntry<>(user, calculateMatchScore(currentUser, user)))
+                .filter(entry -> entry.getValue() >= minScore)
                 .sorted((entry1, entry2) -> Integer.compare(entry2.getValue(), entry1.getValue()))
-                .limit(10)
+                .limit(20)
                 .map(AbstractMap.SimpleEntry::getKey)
                 .toList();
     }
@@ -229,8 +231,6 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
         } else if (Objects.equals(currentUser.getCountry(), otherUser.getCountry())) {
             score += 10;
         }
-
-        System.out.println("User: " + otherUser.getId() + " | Score: " + score);
 
         return score;
     }

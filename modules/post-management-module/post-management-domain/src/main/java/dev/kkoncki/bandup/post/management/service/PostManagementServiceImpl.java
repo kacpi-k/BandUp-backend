@@ -79,6 +79,7 @@ public class PostManagementServiceImpl implements PostManagementService {
         return post;
     }
 
+    @Transactional
     @Override
     public void deletePost(String postId, String userId) {
         Post post = getPostById(postId);
@@ -123,6 +124,7 @@ public class PostManagementServiceImpl implements PostManagementService {
         return comment;
     }
 
+    @Transactional
     @Override
     public void deleteComment(String commentId, String userId) {
         Comment comment = getCommentById(commentId);
@@ -160,6 +162,7 @@ public class PostManagementServiceImpl implements PostManagementService {
         }
     }
 
+    @Transactional
     @Override
     public void unlikePost(String postId, String userId) {
         Post post = getPostById(postId);
