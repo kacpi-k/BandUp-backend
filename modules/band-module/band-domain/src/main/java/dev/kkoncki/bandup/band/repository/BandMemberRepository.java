@@ -10,4 +10,5 @@ public interface BandMemberRepository {
     List<BandMember> findAllByBandId(String bandId);
     BandMember save(BandMember bandMember);
     void delete(String id);
+    List<BandMember> findAllByUserId(String userId);
 }

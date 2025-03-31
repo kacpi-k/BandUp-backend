@@ -5,6 +5,8 @@ import dev.kkoncki.bandup.commons.LoggedUser;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/chat")
 public class ChatRestController {
@@ -39,5 +41,17 @@ public class ChatRestController {
             @RequestParam(defaultValue = "20") int size
     ) {
         return chatService.getGroupMessages(bandId, page, size);
+    }
+
+    @GetMapping("/private/all")
+    public List<PrivateChatMessage> getAllPrivateMessages() {
+        String userId = loggedUser.getUserId();
+        return chatService.getAllUserPrivateMessages(userId);
+    }
+
+    @GetMapping("/group/all")
+    public List<GroupChatMessage> getAllGroupMessages() {
+        String userId = loggedUser.getUserId();
+        return chatService.getAllUserGroupMessages(userId);
     }
 }

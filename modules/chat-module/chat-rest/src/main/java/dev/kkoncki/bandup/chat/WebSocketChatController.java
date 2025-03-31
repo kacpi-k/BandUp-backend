@@ -7,6 +7,7 @@ import dev.kkoncki.bandup.commons.LoggedUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
@@ -46,7 +47,7 @@ public class WebSocketChatController {
 
     @MessageMapping("/send/private")
     public void sendPrivateMessage(SendPrivateChatMessageForm form) {
-        String senderId = loggedUser.getUserId();
+        String senderId = form.getSenderId();
 
         chatService.savePrivateMessage(form, senderId);
 

@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface JpaPrivateChatRepository extends JpaRepository<PrivateChatMessageEntity, String> {
     @Query("SELECT p FROM PrivateChatMessageEntity p WHERE " +
@@ -14,4 +16,6 @@ public interface JpaPrivateChatRepository extends JpaRepository<PrivateChatMessa
             "OR (p.senderId = :receiverId AND p.receiverId = :senderId) " +
             "ORDER BY p.timestamp DESC")
     Page<PrivateChatMessageEntity> findPrivateMessages(String senderId, String receiverId, Pageable pageable);
+
+    List<PrivateChatMessageEntity> findAllBySenderIdOrReceiverId(String userId, String userId1);
 }

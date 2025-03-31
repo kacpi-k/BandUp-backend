@@ -53,4 +53,11 @@ public class BandMemberRepositoryAdapter implements BandMemberRepository {
         }
         jpaBandMemberRepository.deleteById(id);
     }
+
+    @Override
+    public List<BandMember> findAllByUserId(String userId) {
+        return jpaBandMemberRepository.findAllByUserId(userId).stream()
+                .map(BandMemberMapper::toDomain)
+                .toList();
+    }
 }
