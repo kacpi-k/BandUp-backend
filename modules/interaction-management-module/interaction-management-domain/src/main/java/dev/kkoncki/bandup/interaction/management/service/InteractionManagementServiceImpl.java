@@ -44,7 +44,7 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
                 .id(UUID.randomUUID().toString())
                 .requesterId(requesterId)
                 .addresseeId(addresseeId)
-                .status(FriendshipStatus.PENDING)
+                .status(FriendshipStatus.ACCEPTED)
                 .timestamp(Instant.now())
                 .build();
 
@@ -84,13 +84,18 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
 
     @Override
     public void removeFriendship(String friendshipId, String userId) {
-        Friendship friendship = getFriendshipOrThrow(friendshipId, userId);
-
-        if(!friendship.getRequesterId().equals(userId) && !friendship.getAddresseeId().equals(userId)) {
-            throw new ApplicationException(ErrorCode.UNAUTHORIZED);
-        }
+//        Friendship friendship = getFriendshipOrThrow(friendshipId, userId);
+//
+//        if(!friendship.getRequesterId().equals(userId) && !friendship.getAddresseeId().equals(userId)) {
+//            throw new ApplicationException(ErrorCode.UNAUTHORIZED);
+//        }
 
         repository.deleteFriendship(friendshipId);
+    }
+
+    @Override
+    public List<Friendship> getFriendshipWithUser(String loggedUser, String userId) {
+        return repository.findFriendshipWithUser(loggedUser, userId);
     }
 
     // Follow
@@ -187,10 +192,10 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
         int minScore = 45;
         User currentUser = userManagementService.get(userId);
 
-        SearchForm searchForm = new SearchForm();
-        searchForm.setPage(1);
-        searchForm.setSize(100);
-        List<User> allUsers = userManagementService.search(searchForm).getItems();
+//        SearchForm searchForm = new SearchForm();
+//        searchForm.setPage(1);
+//        searchForm.setSize(100);
+        List<User> allUsers = userManagementService.getAll();
 
         List<String> friends = repository.findFriendshipsByUser(userId).stream()
                 .map(friendship -> friendship.getRequesterId().equals(userId) ? friendship.getAddresseeId() : friendship.getRequesterId())

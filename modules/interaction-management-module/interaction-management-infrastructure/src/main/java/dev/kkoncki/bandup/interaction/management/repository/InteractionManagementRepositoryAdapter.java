@@ -4,6 +4,7 @@ import dev.kkoncki.bandup.commons.ApplicationException;
 import dev.kkoncki.bandup.commons.ErrorCode;
 import dev.kkoncki.bandup.interaction.management.*;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +39,7 @@ public class InteractionManagementRepositoryAdapter implements InteractionManage
         jpaFriendshipRepository.save(friendship);
     }
 
+    @Transactional
     @Override
     public void deleteFriendship(String friendshipId) {
         jpaFriendshipRepository.deleteById(friendshipId);
@@ -60,6 +62,14 @@ public class InteractionManagementRepositoryAdapter implements InteractionManage
     @Override
     public boolean existsFriendship(String requesterId, String addresseeId) {
         return jpaFriendshipRepository.existsFriendship(requesterId, addresseeId);
+    }
+
+    @Override
+    public List<Friendship> findFriendshipWithUser(String loggedUser, String userId) {
+        return jpaFriendshipRepository.findByRequesterIdAndAddresseeIdOrAddresseeIdAndRequesterId(loggedUser, userId, loggedUser, userId)
+                .stream()
+                .map(FriendshipMapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -173,4 +173,9 @@ public class PostManagementServiceImpl implements PostManagementService {
         repository.deletePostLike(postId, userId);
         repository.updatePostInteractions(postId, -1, 0);
     }
+
+    @Override
+    public List<Post> getPostsByFriends(String userId) {
+        return repository.findPostsByFriends(userId);
+    }
 }

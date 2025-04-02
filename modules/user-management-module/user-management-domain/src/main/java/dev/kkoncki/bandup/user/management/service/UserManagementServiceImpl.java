@@ -152,4 +152,9 @@ public class UserManagementServiceImpl implements UserManagementService {
     public SearchResponse<User> search(SearchForm form) {
         return userManagementRepository.search(form);
     }
+
+    @Override
+    public List<User> getAll() {
+        return userManagementRepository.findAll();
+    }
 }

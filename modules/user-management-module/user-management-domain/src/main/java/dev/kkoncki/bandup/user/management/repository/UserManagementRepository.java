@@ -15,4 +15,5 @@ public interface UserManagementRepository {
     void updateBio(String userId, String bio);
     void updateImageUrl(String userId, String imageUrl);
     void updateGenres(String userId, List<String> genreIds);
+    List<User> findAll();
 }

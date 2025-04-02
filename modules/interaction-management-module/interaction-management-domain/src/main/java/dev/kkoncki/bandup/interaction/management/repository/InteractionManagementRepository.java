@@ -17,6 +17,7 @@ public interface InteractionManagementRepository {
     Optional<Friendship> findFriendshipByUser(String requesterId, String addresseeId);
     List<Friendship> findFriendshipsByUser(String userId);
     boolean existsFriendship(String requesterId, String addresseeId);
+    List<Friendship> findFriendshipWithUser(String loggedUser, String userId);
 
     // Follow
     void saveFollow(Follow follow);

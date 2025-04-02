@@ -23,4 +23,6 @@ public interface PostManagementService {
 
     void likePost(String postId, String userId);
     void unlikePost(String postId, String userId);
+
+    List<Post> getPostsByFriends(String userId);
 }

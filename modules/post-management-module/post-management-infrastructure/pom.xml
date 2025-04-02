@@ -23,5 +23,11 @@
             <artifactId>infrastructure</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>dev.kkoncki.bandup</groupId>
+            <artifactId>interaction-management-domain</artifactId>
+            <version>1.0.1</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

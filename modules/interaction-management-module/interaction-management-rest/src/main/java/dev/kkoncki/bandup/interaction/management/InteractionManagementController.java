@@ -47,6 +47,11 @@ public class InteractionManagementController {
         interactionManagementService.removeFriendship(friendshipId, loggedUser.getUserId());
     }
 
+    @GetMapping("friend/with/{userId}")
+    public List<Friendship> getFriendshipWithUser(@PathVariable String userId) {
+        return interactionManagementService.getFriendshipWithUser(loggedUser.getUserId(), userId);
+    }
+
     // Follow Endpoints
 
     @PostMapping("/follow/{followedId}")

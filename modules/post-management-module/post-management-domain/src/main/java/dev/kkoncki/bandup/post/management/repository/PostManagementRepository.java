@@ -22,4 +22,6 @@ public interface PostManagementRepository {
     boolean isPostLikedByUser(String postId, String userId);
     void savePostLike(String postId, String userId);
     void deletePostLike(String postId, String userId);
+
+    List<Post> findPostsByFriends(String userId);
 }
