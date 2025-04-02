@@ -51,4 +51,10 @@ public class BandController {
     SearchResponse<Band> search(@RequestBody SearchForm form) {
         return bandService.search(form);
     }
+
+
+    @GetMapping("/user")
+    public List<Band> getAllBandsByUser() {
+        return bandService.getAllBandsByUserId(loggedUser.getUserId());
+    }
 }

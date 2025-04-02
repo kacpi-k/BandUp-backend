@@ -33,6 +33,11 @@
             <artifactId>spring-messaging</artifactId>
             <version>${messaging.version}</version>
         </dependency>
+        <dependency>
+            <groupId>dev.kkoncki.bandup</groupId>
+            <artifactId>security</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 
 </project>

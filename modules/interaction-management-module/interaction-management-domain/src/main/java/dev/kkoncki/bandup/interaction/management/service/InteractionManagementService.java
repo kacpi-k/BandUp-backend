@@ -17,6 +17,7 @@ public interface InteractionManagementService {
     List<User> getFriends(String userId);
     List<Friendship> getPendingFriendRequests(String userId);
     void removeFriendship(String friendshipId, String userId);
+    List<Friendship> getFriendshipWithUser(String userId, String userId1);
 
     // Follow
     void followUser(String followerId, String followedId);

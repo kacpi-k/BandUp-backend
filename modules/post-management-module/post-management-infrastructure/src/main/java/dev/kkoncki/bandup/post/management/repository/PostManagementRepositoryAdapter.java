@@ -1,5 +1,6 @@
 package dev.kkoncki.bandup.post.management.repository;
 
+import dev.kkoncki.bandup.interaction.management.FriendshipStatus;
 import dev.kkoncki.bandup.post.management.*;
 import org.springframework.stereotype.Component;
 
@@ -90,5 +91,12 @@ public class PostManagementRepositoryAdapter implements PostManagementRepository
     @Override
     public void deletePostLike(String postId, String userId) {
         jpaPostLikeRepository.deleteByPostIdAndUserId(postId, userId);
+    }
+
+    @Override
+    public List<Post> findPostsByFriends(String userId) {
+        return jpaPostRepository.findPostsByFriendsAndStatus(userId, FriendshipStatus.ACCEPTED).stream()
+                .map(PostMapper::toDomain)
+                .toList();
     }
 }

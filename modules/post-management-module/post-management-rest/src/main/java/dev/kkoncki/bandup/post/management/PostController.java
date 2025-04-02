@@ -69,4 +69,9 @@ public class PostController {
     public void unlikePost(@PathVariable String postId) {
         postManagementService.unlikePost(postId, loggedUser.getUserId());
     }
+
+    @GetMapping("/friends")
+    public List<Post> getPostsByFriends() {
+        return postManagementService.getPostsByFriends(loggedUser.getUserId());
+    }
 }

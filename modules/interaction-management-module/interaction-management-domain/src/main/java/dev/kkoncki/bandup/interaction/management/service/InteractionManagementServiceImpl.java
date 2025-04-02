@@ -44,7 +44,7 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
                 .id(UUID.randomUUID().toString())
                 .requesterId(requesterId)
                 .addresseeId(addresseeId)
-                .status(FriendshipStatus.PENDING)
+                .status(FriendshipStatus.ACCEPTED)
                 .timestamp(Instant.now())
                 .build();
 
@@ -84,13 +84,18 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
 
     @Override
     public void removeFriendship(String friendshipId, String userId) {
-        Friendship friendship = getFriendshipOrThrow(friendshipId, userId);
-
-        if(!friendship.getRequesterId().equals(userId) && !friendship.getAddresseeId().equals(userId)) {
-            throw new ApplicationException(ErrorCode.UNAUTHORIZED);
-        }
+//        Friendship friendship = getFriendshipOrThrow(friendshipId, userId);
+//
+//        if(!friendship.getRequesterId().equals(userId) && !friendship.getAddresseeId().equals(userId)) {
+//            throw new ApplicationException(ErrorCode.UNAUTHORIZED);
+//        }
 
         repository.deleteFriendship(friendshipId);
+    }
+
+    @Override
+    public List<Friendship> getFriendshipWithUser(String loggedUser, String userId) {
+        return repository.findFriendshipWithUser(loggedUser, userId);
     }
 
     // Follow
@@ -184,12 +189,13 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
 
     @Override
     public List<User> recommendUsers(String userId) {
+        int minScore = 45;
         User currentUser = userManagementService.get(userId);
 
-        SearchForm searchForm = new SearchForm();
-        searchForm.setPage(1);
-        searchForm.setSize(100);
-        List<User> allUsers = userManagementService.search(searchForm).getItems();
+//        SearchForm searchForm = new SearchForm();
+//        searchForm.setPage(1);
+//        searchForm.setSize(100);
+        List<User> allUsers = userManagementService.getAll();
 
         List<String> friends = repository.findFriendshipsByUser(userId).stream()
                 .map(friendship -> friendship.getRequesterId().equals(userId) ? friendship.getAddresseeId() : friendship.getRequesterId())
@@ -205,8 +211,9 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
                 .filter(user -> !blockedUsers.contains(user.getId())) // exclude blocked users
                 .filter(user -> isWithinMaxDistance(currentUser, user, 100)) // filter by distance
                 .map(user -> new AbstractMap.SimpleEntry<>(user, calculateMatchScore(currentUser, user)))
+                .filter(entry -> entry.getValue() >= minScore)
                 .sorted((entry1, entry2) -> Integer.compare(entry2.getValue(), entry1.getValue()))
-                .limit(10)
+                .limit(20)
                 .map(AbstractMap.SimpleEntry::getKey)
                 .toList();
     }
@@ -229,8 +236,6 @@ public class InteractionManagementServiceImpl implements InteractionManagementSe
         } else if (Objects.equals(currentUser.getCountry(), otherUser.getCountry())) {
             score += 10;
         }
-
-        System.out.println("User: " + otherUser.getId() + " | Score: " + score);
 
         return score;
     }

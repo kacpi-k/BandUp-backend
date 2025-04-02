@@ -64,4 +64,20 @@ public class ChatRepositoryAdapter implements ChatRepository {
 
         return new PageImpl<>(domainMessages, pageable, entityPage.getTotalElements());
     }
+
+    @Override
+    public List<PrivateChatMessage> findAllBySenderIdOrReceiverId(String userId, String userId1) {
+        List<PrivateChatMessageEntity> entities = privateRepo.findAllBySenderIdOrReceiverId(userId, userId1);
+
+        return entities.stream()
+                .map(PrivateChatMessageMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<GroupChatMessage> findAllByBandIdIn(List<String> userBandIds) {
+        List<GroupChatMessageEntity> entities = groupRepo.findAllByBandIdIn(userBandIds);
+
+        return GroupChatMessageMapper.toDomainList(entities);
+    }
 }

@@ -18,5 +18,10 @@
             <artifactId>domain</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>dev.kkoncki.bandup</groupId>
+            <artifactId>band-domain</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 </project>

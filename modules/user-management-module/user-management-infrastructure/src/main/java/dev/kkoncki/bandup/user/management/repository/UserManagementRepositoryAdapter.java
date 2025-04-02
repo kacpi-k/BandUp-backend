@@ -89,4 +89,11 @@ public class UserManagementRepositoryAdapter implements UserManagementRepository
 
         entityManager.merge(userEntity);
     }
+
+    @Override
+    public List<User> findAll() {
+        return jpaUserManagementRepository.findAll().stream()
+                .map(UserMapper::toDomain)
+                .collect(Collectors.toList());
+    }
 }

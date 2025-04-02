@@ -48,6 +48,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorizeHttpRequest) -> authorizeHttpRequest
                         .requestMatchers(props.getSecurityFilterPath()).permitAll()
                         .requestMatchers(
+                                "/ws/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"

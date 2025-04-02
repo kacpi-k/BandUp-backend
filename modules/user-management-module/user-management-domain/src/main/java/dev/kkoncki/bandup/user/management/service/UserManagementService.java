@@ -24,4 +24,5 @@ public interface UserManagementService {
     void updateBio(String userId, String bio);
     void updateImageUrl(String userId, String imageUrl);
     SearchResponse<User> search(SearchForm form);
+    List<User> getAll();
 }

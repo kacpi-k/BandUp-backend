@@ -5,6 +5,7 @@ import dev.kkoncki.bandup.chat.PrivateChatMessage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ChatRepository {
@@ -13,4 +14,6 @@ public interface ChatRepository {
     Page<PrivateChatMessage> findPrivateMessages(String senderId, String receiverId, Pageable pageable);
     Optional<PrivateChatMessage> findById(String messageId);
     Page<GroupChatMessage> findGroupMessages(String bandId, Pageable pageable);
+    List<PrivateChatMessage> findAllBySenderIdOrReceiverId(String userId, String userId1);
+    List<GroupChatMessage> findAllByBandIdIn(List<String> userBandIds);
 }
